@@ -260,6 +260,9 @@ def _extract_listings(html, model_label, query, source_name, base_url, country):
         # Clean up Scanboat / Boat24 title noise
         text = re.sub(r"\s*\|\s*(Motorboat|Motor boat|Sailboat|Year|Location|Price|Details).*$",
                       "", text, flags=re.IGNORECASE).strip()
+        # Remove trailing "213,660 EUR Motorboat" style fragments
+        text = re.sub(r"\s+[\d][\d,. ]+\s*(EUR|SEK|DKK)\s*(Motorboat|Sailboat|Boat)?\s*$",
+                      "", text, flags=re.IGNORECASE).strip()
         text = re.sub(r"\s+(EUR|SEK|DKK)\s*$", "", text).strip()
         if not text or len(text) < 8:
             continue
@@ -275,7 +278,8 @@ def _extract_listings(html, model_label, query, source_name, base_url, country):
             container = parent
             ctx = container.get_text(" ")
             if not price_orig:
-                pm = re.search(r"([\d\s]{4,})\s*(€|kr\.?|dkk|eur)", ctx.lower())
+                # Include comma/dot/nbsp as thousand separators
+                pm = re.search(r"(\d[\d\s,. ]{3,})\s*(€|kr\.?|dkk|eur)", ctx.lower())
                 if pm:
                     price_orig, currency = parse_price(pm.group())
             if not year:
