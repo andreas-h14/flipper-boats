@@ -129,17 +129,129 @@ def _rss_get(url):
         return None
 
 
-def scrape_blocket_rss():
-    """Blocket RSS feed — bypasses API 503 blocks."""
+def scrape_blocket():
+    """
+    Blocket boat search via requests + HTML parsing.
+    URL: /mobility/search/boat?q=... returns 200 with rendered listing data.
+    Each listing is separated by the text 'Lägg till i favoriter'.
+    """
     results = []
     for model_label, query in MODELS:
         q = query.replace(" ", "+")
-        # Try multiple RSS URL formats
+        url = f"https://www.blocket.se/mobility/search/boat?q={q}&st=s"
+        try:
+            r = requests.get(url, headers=HEADERS, timeout=15)
+            r.raise_for_status()
+        except Exception as exc:
+            log.warning("  Blocket request failed: %s", exc)
+            continue
+
+        soup = BeautifulSoup(r.text, "lxml")
+
+        # 1. Collect unique listing URLs (preserve order)
+        listing_urls = list(dict.fromkeys(
+            a.get("href")
+            for a in soup.find_all("a", href=re.compile(r"/mobility/item/\d+"))
+            if a.get("href")
+        ))
+        if not listing_urls:
+            log.info("  Blocket: no listing URLs found")
+            continue
+
+        # 2. Split page text on separator between listings
+        full_text = soup.get_text(" ")
+        raw_blocks = re.split(r"Lägg till i favoriter", full_text)
+
+        # Build ordered list of listing text blocks
+        # raw_blocks[0] = text of first listing (before first separator)
+        # raw_blocks[1:] = ". Öppna annons [next listing text]..."
+        listing_texts = [raw_blocks[0]] if raw_blocks else []
+        for block in raw_blocks[1:]:
+            cleaned = re.sub(r"^\s*\.\s*Öppna\s*annons\s*", "", block).strip()
+            listing_texts.append(cleaned)
+
+        log.info("  Blocket: %d URLs, %d text blocks", len(listing_urls), len(listing_texts))
+
+        for i, listing_url in enumerate(listing_urls):
+            if i >= len(listing_texts):
+                break
+            text = " ".join(listing_texts[i].split())
+
+            # Filter to only Flipper 880/900 ST (exclude DC, HT, CC variants)
+            model_num = "880" if "880" in model_label else "900"
+            if "flipper" not in text.lower() or model_num not in text:
+                continue
+            # Skip other Flipper variants (DC, HT, CC, SC) unless title also has ST
+            if re.search(r"\bFlipper\s+\d{3}\s*(DC|HT|CC|SC)\b", text, re.IGNORECASE):
+                if not re.search(r"\bST\b", text):
+                    continue
+            # Skip if year is known and clearly too old (< 2014)
+            year_check = re.search(r"\b(19\d{2}|200\d|201[0-3])\b", text[:80])
+            if year_check and year_check.group() and int(year_check.group()) < 2014:
+                continue
+
+            # Title: everything before "YYYY ∙" pattern
+            title_m = re.match(r"^(.{5,80}?)\s+\d{4}\s*[∙·•]", text)
+            title = title_m.group(1).strip() if title_m else f"Flipper {model_label}"
+            # Clean up title
+            title = re.sub(r"\s*\|.*$", "", title).strip()
+
+            # Year
+            year_m = re.search(r"\b(20\d{2}|19\d{2})\b", text[:80])
+            year = int(year_m.group()) if year_m else None
+
+            # Price (SEK)
+            price_m = re.search(r"([\d\s]{4,})\s*kr", text)
+            price_orig = int(re.sub(r"\D", "", price_m.group(1))) if price_m else None
+            if price_orig and (price_orig < 10000 or price_orig > 10_000_000):
+                price_orig = None  # sanity check
+
+            # City: after price, before "Privat"/"Företag"/seller name
+            city_m = re.search(r"\d\s+kr\s+([A-ZÅÄÖ][a-zåäö]+(?:\s+[A-ZÅÄÖ][a-zåäö]+)?)", text)
+            city = city_m.group(1).strip() if city_m else None
+            # Strip "Privat" or "Företag" that leaked into city
+            if city:
+                city = re.sub(r"\s*(Privat|Företag)\s*$", "", city, flags=re.IGNORECASE).strip()
+
+            # Engine horsepower
+            engine_m = re.search(r"(\d+)\s*hk", text, re.IGNORECASE)
+            engine = f"{engine_m.group(1)} hk" if engine_m else None
+
+            # Dealer or private
+            is_dealer = "Företag" in text or bool(
+                re.search(r"\b(AB|A/S|Marin|Marine|Båt|Yachts?)\b", text, re.IGNORECASE)
+            )
+
+            full_url = ("https://www.blocket.se" + listing_url
+                        if listing_url.startswith("/") else listing_url)
+
+            results.append(make_boat(
+                title=title,
+                model=model_label,
+                year=year,
+                price_orig=price_orig,
+                currency="SEK",
+                hours=None,
+                engine=engine,
+                country="SE",
+                city=city,
+                url=full_url,
+                source_name="Blocket",
+                vat="incl" if is_dealer else "private",
+            ))
+    return results
+
+
+# keep old RSS stub for reference — now unused
+def scrape_blocket_rss():
+    """DEPRECATED: Blocket removed RSS feeds. Use scrape_blocket() instead."""
+    results = []
+    for model_label, query in MODELS:
+        q = query.replace(" ", "+")
+        # RSS 404 since 2025 — kept as fallback attempt
         tree = None
         for rss_url in [
             f"https://www.blocket.se/rss/hela_sverige?q={q}&ca=5050&st=s",
-            f"https://www.blocket.se/rss/fritid_hobby?q={q}&st=s",
-            f"https://www.blocket.se/rss/?q={q}&ca=5050",
         ]:
             tree = _rss_get(rss_url)
             if tree is not None:
@@ -620,7 +732,6 @@ def _pw_veneporssi(page):
 def run_playwright_scrapers():
     all_results = []
     scrapers = [
-        ("Blocket",     _pw_blocket),
         ("Scanboat",    _pw_scanboat),
         ("Boat24",      _pw_boat24),
         ("Nettivene",   _pw_nettivene),
@@ -722,8 +833,8 @@ def inject(boats_list, html_path="index.html"):
 def main():
     all_boats = []
 
-    # Lightweight RSS scrapers (no bot blocking)
-    for name, fn in [("Blocket (RSS)", scrape_blocket_rss), ("DBA.dk (RSS)", scrape_dba_rss)]:
+    # Lightweight requests scrapers (no Playwright needed)
+    for name, fn in [("Blocket", scrape_blocket), ("DBA.dk (RSS)", scrape_dba_rss)]:
         log.info("Scraping %s ...", name)
         try:
             found = fn()
