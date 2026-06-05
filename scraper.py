@@ -63,8 +63,20 @@ def parse_price(text):
         cur = "EUR"
     else:
         cur = "EUR"
-    digits = re.sub(r"[^\d]", "", text)
-    return (int(digits) if digits else None), cur
+    # Match numbers including comma/dot/space thousand separators, e.g. "118,620" or "1 500 000"
+    nums = re.findall(r"\d[\d\s,. ]*\d|\d{4,}", text)
+    if not nums:
+        return None, cur
+    # Take the longest number (most likely the price, not a year)
+    best = max(nums, key=lambda s: len(re.sub(r"[^\d]", "", s)))
+    digits = re.sub(r"[^\d]", "", best)
+    if not digits or len(digits) < 3:
+        return None, cur
+    val = int(digits)
+    # Sanity check: boat prices should be 1 000 – 10 000 000
+    if val < 1000 or val > 10_000_000:
+        return None, cur
+    return val, cur
 
 
 def to_sek(amount, currency):
@@ -122,7 +134,16 @@ def scrape_blocket_rss():
     results = []
     for model_label, query in MODELS:
         q = query.replace(" ", "+")
-        tree = _rss_get(f"https://www.blocket.se/rss/fritid_hobby?q={q}&st=s")
+        # Try multiple RSS URL formats
+        tree = None
+        for rss_url in [
+            f"https://www.blocket.se/rss/hela_sverige?q={q}&ca=5050&st=s",
+            f"https://www.blocket.se/rss/fritid_hobby?q={q}&st=s",
+            f"https://www.blocket.se/rss/?q={q}&ca=5050",
+        ]:
+            tree = _rss_get(rss_url)
+            if tree is not None:
+                break
         if tree is None:
             continue
         for item in tree.findall(".//item"):
@@ -213,6 +234,12 @@ def _extract_listings(html, model_label, query, source_name, base_url, country):
         if len(text) < 8:
             continue
         seen_hrefs.add(href)
+        # Clean up Scanboat / Boat24 title noise
+        text = re.sub(r"\s*\|\s*(Motorboat|Motor boat|Sailboat|Year|Location|Price|Details).*$",
+                      "", text, flags=re.IGNORECASE).strip()
+        text = re.sub(r"\s+(EUR|SEK|DKK)\s*$", "", text).strip()
+        if not text or len(text) < 8:
+            continue
 
         # Climb the DOM for price context
         price_orig, currency = None, "EUR"
