@@ -504,7 +504,7 @@ def scrape_veetehnika():
             price_orig, cur = parse_price(price_el.get_text() if price_el else "")
             href = link_el.get("href", "") if link_el else ""
             full_url = ("https://eng.veetehnika.ee" + href
-                        if href.startswith("/") else href or url)
+                        if href.startswith("/") else href or "https://eng.veetehnika.ee")
             results.append(boat(
                 title=title, model=model_label, year=None,
                 price_orig=price_orig, currency=cur or "EUR",
@@ -564,9 +564,10 @@ def inject(boats_list, html_path="index.html"):
         f"{MARKER_END}"
     )
     if MARKER_START in html:
+        # Use lambda so JSON backslashes aren't misread as regex backreferences
         html = re.sub(
             re.escape(MARKER_START) + r".*?" + re.escape(MARKER_END),
-            block,
+            lambda _: block,
             html,
             flags=re.DOTALL,
         )
