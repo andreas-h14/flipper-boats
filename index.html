@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<title>Flipper 880ST / 900ST – Marknadsöversikt</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #0d1117;
+    --card: #161b22;
+    --card-hover: #1c232c;
+    --border: #30363d;
+    --border-light: #21262d;
+    --text: #e6edf3;
+    --text-dim: #8b949e;
+    --text-muted: #6e7681;
+    --accent: #58a6ff;
+    --accent-2: #ffa657;
+    --green: #3fb950;
+    --red: #f85149;
+    --yellow: #d29922;
+    --sold-bg: rgba(248,81,73,0.08);
+    --row-hover: #21262d;
+    --warn-bg: rgba(210,153,34,0.10);
+    --warn-border: #d29922;
+    --scraped-bg: rgba(63,185,80,0.06);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg); color: var(--text);
+    line-height: 1.5; padding: 24px; min-height: 100vh;
+  }
+  .container { max-width: 1600px; margin: 0 auto; }
+
+  /* Header */
+  h1 {
+    font-size: 28px; font-weight: 700; margin-bottom: 6px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .subtitle { color: var(--text-dim); font-size: 14px; margin-bottom: 14px; }
+  .meta-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; font-size: 13px; }
+  .pill {
+    background: var(--card); padding: 5px 11px; border-radius: 6px;
+    border: 1px solid var(--border-light); color: var(--text-dim);
+  }
+  .pill b { color: var(--text); }
+  .pill.ok { border-color: rgba(63,185,80,0.4); background: rgba(63,185,80,0.06); }
+  .pill.warn { border-color: var(--warn-border); background: var(--warn-bg); }
+
+  /* Stats */
+  .stats-row { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .stat {
+    background: var(--card); border: 1px solid var(--border-light);
+    border-radius: 6px; padding: 8px 14px; font-size: 12px; color: var(--text-dim);
+  }
+  .stat b { color: var(--text); font-size: 14px; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 4px; margin-bottom: 16px; border-bottom: 1px solid var(--border); }
+  .tab {
+    background: transparent; border: none; color: var(--text-dim);
+    padding: 10px 16px; cursor: pointer; font-size: 13px;
+    border-bottom: 2px solid transparent; transition: all 0.15s; font-family: inherit; height: auto;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+  .tab .cnt {
+    background: var(--card); padding: 1px 7px; border-radius: 10px;
+    font-size: 11px; margin-left: 6px;
+  }
+
+  /* Controls */
+  .controls {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 14px 16px; margin-bottom: 16px; display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end;
+  }
+  .cg { display: flex; flex-direction: column; gap: 4px; }
+  .cg label {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;
+    color: var(--text-muted); font-weight: 600;
+  }
+  select, input[type="text"], input[type="number"] {
+    background: var(--bg); color: var(--text); border: 1px solid var(--border);
+    border-radius: 6px; padding: 6px 10px; font-size: 13px; min-width: 110px; font-family: inherit;
+  }
+  select:focus, input:focus { outline: none; border-color: var(--accent); }
+  button {
+    background: var(--card); color: var(--text); border: 1px solid var(--border);
+    border-radius: 6px; padding: 6px 14px; font-size: 13px; cursor: pointer;
+    font-family: inherit; transition: all 0.15s; height: 32px;
+  }
+  button:hover { background: var(--card-hover); border-color: var(--accent); }
+  button.primary { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
+  button.primary:hover { opacity: 0.9; }
+
+  /* Table */
+  .table-wrapper {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    overflow: auto; max-height: 68vh;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1300px; }
+  thead { position: sticky; top: 0; z-index: 10; background: var(--card); }
+  th {
+    padding: 11px 10px; text-align: left; font-weight: 600; color: var(--text-dim);
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border); cursor: pointer; user-select: none; white-space: nowrap;
+  }
+  th:hover { color: var(--text); }
+  th.sorted-asc::after { content: " ↑"; color: var(--accent); }
+  th.sorted-desc::after { content: " ↓"; color: var(--accent); }
+  td { padding: 11px 10px; border-bottom: 1px solid var(--border-light); vertical-align: top; }
+  tr:hover td { background: var(--row-hover); }
+  tr.sold td { background: var(--sold-bg); opacity: 0.75; }
+  tr.sold:hover td { opacity: 1; }
+  tr.scraped td { background: var(--scraped-bg); }
+
+  .title-cell { font-weight: 500; max-width: 280px; }
+  .title-cell .desc { font-size: 11px; color: var(--text-muted); margin-top: 3px; font-weight: 400; }
+  .model-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .model-880 { background: rgba(88,166,255,0.15); color: var(--accent); }
+  .model-900 { background: rgba(255,166,87,0.15); color: var(--accent-2); }
+  .price-sek { font-weight: 600; }
+  .price-orig { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .hours-low { color: var(--green); }
+  .hours-med { color: var(--yellow); }
+  .hours-high { color: var(--red); }
+  .hours-na { color: var(--text-muted); font-style: italic; font-size: 11px; }
+  .stars { color: var(--accent-2); white-space: nowrap; }
+  .star-dim { color: var(--border); }
+  .stars-unknown { color: var(--text-muted); font-style: italic; font-size: 11px; }
+  .vat-tag {
+    display: inline-block; padding: 2px 6px; border-radius: 4px;
+    font-size: 10px; font-weight: 600; text-transform: uppercase;
+  }
+  .vat-incl { background: rgba(63,185,80,0.15); color: var(--green); }
+  .vat-excl { background: rgba(248,81,73,0.15); color: var(--red); }
+  .vat-private { background: rgba(139,148,158,0.15); color: var(--text-dim); }
+  .sold-tag {
+    background: var(--red); color: #fff; padding: 1px 6px; border-radius: 3px;
+    font-size: 10px; font-weight: 700; text-transform: uppercase; margin-left: 6px;
+  }
+  .source-links { display: flex; flex-direction: column; gap: 4px; }
+  .source-link {
+    color: var(--accent); text-decoration: none; font-size: 12px; padding: 2px 6px;
+    background: rgba(88,166,255,0.08); border-radius: 4px;
+    border: 1px solid rgba(88,166,255,0.2); display: inline-block; white-space: nowrap; transition: all 0.15s;
+  }
+  .source-link:hover { background: rgba(88,166,255,0.2); }
+  .flag { font-size: 14px; margin-right: 4px; }
+  .city { display: block; font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+  /* Sources tab */
+  .sources-section {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 20px; margin-top: 4px;
+  }
+  .sources-section h2 { font-size: 18px; margin-bottom: 4px; }
+  .sources-section .note { color: var(--text-dim); font-size: 13px; margin-bottom: 16px; }
+  .sources-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+  .source-card {
+    background: var(--bg); border: 1px solid var(--border-light); border-radius: 6px; padding: 14px;
+  }
+  .source-card h4 { font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .source-card .status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .dot-ok { background: var(--green); }
+  .dot-skip { background: var(--text-muted); }
+  .source-card ul { list-style: none; }
+  .source-card li { font-size: 12px; color: var(--text-dim); padding: 3px 0; }
+  .source-card li a { color: var(--accent); text-decoration: none; }
+  .source-card li a:hover { text-decoration: underline; }
+  .source-card .type { font-size: 10px; color: var(--text-muted); margin-left: 6px; text-transform: uppercase; }
+  .scraper-badge {
+    font-size: 10px; padding: 1px 6px; border-radius: 3px; font-weight: 600;
+    background: rgba(63,185,80,0.15); color: var(--green); margin-left: 6px;
+  }
+  .scraper-skip { background: rgba(139,148,158,0.15); color: var(--text-muted); }
+
+  /* Monitoring tab */
+  .monitoring-section {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 20px; margin-top: 4px;
+  }
+  .monitoring-section h2 { font-size: 18px; margin-bottom: 12px; }
+  .monitoring-section ol { padding-left: 20px; color: var(--text-dim); font-size: 13px; }
+  .monitoring-section li { padding: 5px 0; }
+
+  .footer {
+    margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-light);
+    color: var(--text-muted); font-size: 12px; text-align: center;
+  }
+  @media (max-width: 768px) {
+    body { padding: 12px; }
+    .controls { flex-direction: column; align-items: stretch; }
+    h1 { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div style="margin-bottom:20px;">
+  <h1>Flipper 880ST / 900ST – Marknadsöversikt</h1>
+  <div class="subtitle">Sverige · Danmark · Finland · Baltikum · Polen · Modellår ≥ 2014</div>
+  <div class="meta-row">
+    <span class="pill">💱 EUR/SEK: <b>10,86</b></span>
+    <span class="pill">💱 DKK/SEK: <b>1,4545</b></span>
+    <span class="pill warn" id="pill-scraped">🔄 Aldrig scrapad</span>
+    <span class="pill">⚠️ Priser är vägledande – verifiera med säljaren</span>
+  </div>
+</div>
+
+<div class="stats-row">
+  <div class="stat">Aktiva: <b id="stat-active">0</b></div>
+  <div class="stat">Sålda/inaktiva: <b id="stat-sold">0</b></div>
+  <div class="stat">880 ST: <b id="stat-880">0</b></div>
+  <div class="stat">900 ST: <b id="stat-900">0</b></div>
+  <div class="stat">Prisspann: <b id="stat-price">–</b></div>
+  <div class="stat">Lägsta timmar: <b id="stat-hours">–</b></div>
+  <div class="stat">Scraper-fynd: <b id="stat-scraped">0</b></div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-tab="active">🟢 Aktiva <span class="cnt" id="cnt-active">0</span></button>
+  <button class="tab" data-tab="sold">🔴 Sålda <span class="cnt" id="cnt-sold">0</span></button>
+  <button class="tab" data-tab="sources">📡 Källöversikt</button>
+  <button class="tab" data-tab="monitoring">🔔 Bevakning</button>
+</div>
+
+<div class="controls" id="filters">
+  <div class="cg">
+    <label>Modell</label>
+    <select id="f-model">
+      <option value="">Alla</option>
+      <option value="880 ST">880 ST</option>
+      <option value="900 ST">900 ST</option>
+    </select>
+  </div>
+  <div class="cg">
+    <label>Land</label>
+    <select id="f-country">
+      <option value="">Alla</option>
+      <option value="SE">🇸🇪 Sverige</option>
+      <option value="DK">🇩🇰 Danmark</option>
+      <option value="FI">🇫🇮 Finland</option>
+      <option value="EE">🇪🇪 Estland</option>
+      <option value="LV">🇱🇻 Lettland</option>
+      <option value="LT">🇱🇹 Litauen</option>
+      <option value="PL">🇵🇱 Polen</option>
+    </select>
+  </div>
+  <div class="cg">
+    <label>Min år</label>
+    <input type="number" id="f-year" placeholder="2014" min="2014" max="2026">
+  </div>
+  <div class="cg">
+    <label>Max pris (SEK)</label>
+    <input type="number" id="f-price" placeholder="3 000 000" step="50000">
+  </div>
+  <div class="cg">
+    <label>Max timmar</label>
+    <input type="number" id="f-hours" placeholder="500" step="50">
+  </div>
+  <div class="cg">
+    <label>Min skick</label>
+    <select id="f-rating">
+      <option value="">Alla</option>
+      <option value="5">★★★★★</option>
+      <option value="4">★★★★+</option>
+      <option value="3">★★★+</option>
+    </select>
+  </div>
+  <div class="cg">
+    <label>Källa</label>
+    <select id="f-source">
+      <option value="">Alla</option>
+    </select>
+  </div>
+  <div class="cg">
+    <label>Sök fritext</label>
+    <input type="text" id="f-search" placeholder="Verado, joystick…">
+  </div>
+  <button onclick="resetFilters()">↺ Återställ</button>
+  <button class="primary" onclick="exportCSV()">⬇ CSV</button>
+</div>
+
+<div class="table-wrapper" id="table-wrap">
+  <table id="boats-table">
+    <thead>
+      <tr>
+        <th data-sort="model">Modell</th>
+        <th data-sort="title">Rubrik / Annons</th>
+        <th data-sort="year">År</th>
+        <th data-sort="country">Land</th>
+        <th data-sort="priceSEK">Pris (SEK)</th>
+        <th data-sort="hours">Timmar</th>
+        <th data-sort="engine">Motor</th>
+        <th data-sort="rating">Skick</th>
+        <th data-sort="vat">Moms</th>
+        <th>Källa</th>
+      </tr>
+    </thead>
+    <tbody id="boats-tbody"></tbody>
+  </table>
+</div>
+
+<!-- Sources tab -->
+<div id="tab-sources" class="sources-section" style="display:none;">
+  <h2>📡 Källöversikt – automatisk scraping</h2>
+  <p class="note">
+    Gröna källor scrapar scrapern automatiskt dagligen via GitHub Actions.
+    Grå källor kräver manuell koll eller blockerar bots – länkarna är med för manuell bevakning.
+  </p>
+  <div class="sources-grid" id="sources-grid"></div>
+</div>
+
+<!-- Monitoring tab -->
+<div id="tab-monitoring" class="monitoring-section" style="display:none;">
+  <h2>🔔 Manuell bevakningsplan</h2>
+  <p style="color:var(--text-dim);font-size:13px;margin-bottom:16px;">
+    Komplement till den automatiska scrapern – sajter med inbyggd "sökagent"-funktion.
+  </p>
+  <ol id="monitoring-list"></ol>
+</div>
+
+<div class="footer">
+  Automatisk scraping via GitHub Actions · Seed-data manuellt kuraterad 22 maj 2026 ·
+  Skick-bedömning är subjektiv · Verifiera alltid med säljaren innan beslut
+</div>
+
+</div><!-- /container -->
+
+<script>
+// ============================================================
+// SEED DATA – manuellt kuraterade annonser (ground truth)
+// ============================================================
+const seedBoats = [
+  {
+    id: 1, model: "880 ST",
+    title: "Flipper 880 ST 2017 – Båtgiganten",
+    desc: "2x Mercury 250, vinterförvarad, prisstark",
+    year: 2017, country: "SE", countryName: "Sverige", city: "Stockholm",
+    priceOrig: 150900, priceOrigCur: "EUR", priceSEK: Math.round(150900 * 10.86),
+    hours: 300, engine: "2x Mercury 250hk", rating: 4, vat: "incl", active: true,
+    sources: [
+      { name: "Scanboat", url: "https://www.scanboat.com/en/boat-market/boats?SearchCriteria.BoatModelText=Flipper+880+ST" },
+      { name: "Båtgiganten", url: "https://xn--btgiganten-15a.se/begagnad-flipper-till-salu/" },
+      { name: "Blocket", url: "https://www.blocket.se/mobility/item/20920977" }
+    ]
+  },
+  {
+    id: 2, model: "880 ST",
+    title: "Flipper 880 ST 2017 Kungsbacka – 2x Verado 250, DailyBoats",
+    desc: "✅ VERIFIERAD 22 maj: 8.52m × 3.15m, 3000 kg, 380L tank, topfart 83 km/h. Göteborg (Halland).",
+    year: 2017, country: "SE", countryName: "Sverige", city: "Kungsbacka (inomhus)",
+    priceOrig: 1670000, priceOrigCur: "SEK", priceSEK: 1670000,
+    hours: null, engine: "2x Mercury 250 Verado", rating: 4, vat: "incl", active: true,
+    sources: [{ name: "DailyBoats", url: "https://dailyboats.com/boat/180404-buy-flipper-880-st" }]
+  },
+  {
+    id: 3, model: "880 ST",
+    title: "Flipper 880 ST 2014 Raasepori – Privat",
+    desc: "✅ VERIFIERAD 22 maj: 126 900 €, varm hallförvaring, Mercury-service utförd.",
+    year: 2014, country: "FI", countryName: "Finland", city: "Raasepori",
+    priceOrig: 126900, priceOrigCur: "EUR", priceSEK: Math.round(126900 * 10.86),
+    hours: null, engine: "Mercury", rating: 3, vat: "private", active: true,
+    sources: [
+      { name: "Nettivene", url: "https://www.nettivene.com/moottorivene/flipper/929838" },
+      { name: "Venepörssi", url: "https://www.veneporssi.fi/ilmoitus?id=1952" }
+    ]
+  },
+  {
+    id: 4, model: "880 ST",
+    title: "Flipper 880 ST 2015 Helsinki – 2x Verado 300hk, joystick, 370h",
+    desc: "✅ VERIFIERAD 22 maj: Joystick uppgraderat, 45 knop topfart, vinterförvarad inomhus.",
+    year: 2015, country: "FI", countryName: "Finland", city: "Helsinki",
+    priceOrig: 129000, priceOrigCur: "EUR", priceSEK: Math.round(129000 * 10.86),
+    hours: 370, engine: "2x Mercury Verado 300hk", rating: 4, vat: "private", active: true,
+    sources: [{ name: "Nettivene", url: "https://www.nettivene.com/en/moottorivene/flipper/977892" }]
+  },
+  {
+    id: 5, model: "880 ST",
+    title: "Flipper 880 ST 2014 Oulu – 1x F150 EFI (singelmotor)",
+    desc: "✅ VERIFIERAD 22 maj: 105 000 €, ovanlig enkelmotorkonfiguration. Privat.",
+    year: 2014, country: "FI", countryName: "Finland", city: "Oulu",
+    priceOrig: 105000, priceOrigCur: "EUR", priceSEK: Math.round(105000 * 10.86),
+    hours: null, engine: "1x Mercury F150 EFI", rating: 3, vat: "private", active: true,
+    sources: [{ name: "Nettivene", url: "https://www.nettivene.com/en/moottorivene/flipper/945281" }]
+  },
+  {
+    id: 6, model: "880 ST",
+    title: "Flipper 880 ST 2017 + 2x Verado 300hk – Tallinn (Kakumäe)",
+    desc: "✅ VERIFIERAD 22 maj: 129 900 €, <300h, recent service hos Alter Marine, HiFi + undervattensljus.",
+    year: 2017, country: "EE", countryName: "Estland", city: "Tallinn (Kakumäe)",
+    priceOrig: 129900, priceOrigCur: "EUR", priceSEK: Math.round(129900 * 10.86),
+    hours: 300, engine: "2x Mercury Verado 300hk (kompressor)", rating: 4, vat: "incl", active: true,
+    sources: [
+      { name: "Auto24.ee", url: "https://eng.auto24.ee/vehicles/3998063" },
+      { name: "Veetehnika", url: "https://eng.veetehnika.ee/vehicles/3998063" }
+    ]
+  },
+  {
+    id: 7, model: "880 ST",
+    title: "Flipper 880 ST 2024 – Tallinn",
+    desc: "Som ny, 2x Mercury 225hk V6",
+    year: 2024, country: "EE", countryName: "Estland", city: "Tallinn",
+    priceOrig: 199900, priceOrigCur: "EUR", priceSEK: Math.round(199900 * 10.86),
+    hours: null, engine: "2x Mercury 225hk V6", rating: 5, vat: "incl", active: true,
+    sources: [{ name: "Boat24", url: "https://www.boat24.com/en/powerboats/flipper/flipper-880-st/" }]
+  },
+  {
+    id: 8, model: "880 ST",
+    title: "Flipper 880 ST 2015 Nödinge – 1x Verado 350hk",
+    desc: "Privatannons, ovanlig enkelmotorkonfiguration.",
+    year: 2015, country: "SE", countryName: "Sverige", city: "Nödinge",
+    priceOrig: 1195000, priceOrigCur: "SEK", priceSEK: 1195000,
+    hours: null, engine: "1x Mercury Verado 350hk", rating: null, vat: "private", active: true,
+    sources: [{ name: "Blocket", url: "https://www.blocket.se/mobility/item/22057079" }]
+  },
+  {
+    id: 9, model: "880 ST",
+    title: "Flipper 880 ST 2016 Mölndal – 300hk",
+    desc: "Privatannons",
+    year: 2016, country: "SE", countryName: "Sverige", city: "Mölndal",
+    priceOrig: 1225000, priceOrigCur: "SEK", priceSEK: 1225000,
+    hours: null, engine: "300hk", rating: null, vat: "private", active: true,
+    sources: [{ name: "Blocket", url: "https://www.blocket.se/mobility/item/22706111" }]
+  },
+  {
+    id: 10, model: "880 ST",
+    title: "Flipper 880ST 2018 Uddevalla – 450hk, 44 knop",
+    desc: "Privatannons, kraftig motorisering.",
+    year: 2018, country: "SE", countryName: "Sverige", city: "Uddevalla",
+    priceOrig: 1649000, priceOrigCur: "SEK", priceSEK: 1649000,
+    hours: null, engine: "450hk", rating: null, vat: "private", active: true,
+    sources: [{ name: "Blocket", url: "https://www.blocket.se/mobility/item/22884777" }]
+  },
+  // ── 900 ST ──
+  {
+    id: 20, model: "900 ST",
+    title: "Flipper 900 ST 2019 – Båtgiganten, 50h",
+    desc: "⚠️ VERIFIERAD: Scanboat visar 230 640 EUR (2 499 000 SEK). Year-konflikt titel 2023 vs beskr. 2019.",
+    year: 2019, country: "SE", countryName: "Sverige", city: "Stockholm",
+    priceOrig: 230640, priceOrigCur: "EUR", priceSEK: Math.round(230640 * 10.86),
+    hours: 50, engine: "2x Mercury V8 250hk", rating: 5, vat: "incl", active: true,
+    sources: [
+      { name: "Scanboat", url: "https://www.scanboat.com/en/boat-market/boats/motorboat-flipper-900-st-17520398" },
+      { name: "Båtgiganten", url: "https://xn--btgiganten-15a.se/produkt/flipper-900-st-med-2-x-mercury-250-hk-fran-2023/" }
+    ]
+  },
+  {
+    id: 21, model: "900 ST",
+    title: "Flipper 900 ST 2023 Stockholm – 2x Mercury 225hk V6",
+    desc: "2 separata hytter",
+    year: 2023, country: "SE", countryName: "Sverige", city: "Stockholm",
+    priceOrig: 225900, priceOrigCur: "EUR", priceSEK: Math.round(225900 * 10.86),
+    hours: null, engine: "2x Mercury 225hk V6", rating: 4, vat: "incl", active: true,
+    sources: [{ name: "Boat24", url: "https://www.boat24.com/en/powerboats/flipper/flipper-900-st/" }]
+  },
+  {
+    id: 22, model: "900 ST",
+    title: "Flipper 900 ST 2022 – Båtgiganten, 2x Mercury 225hk",
+    desc: "Återförsäljare, tar inbyte.",
+    year: 2022, country: "SE", countryName: "Sverige", city: "Stockholm",
+    priceOrig: 2279000, priceOrigCur: "SEK", priceSEK: 2279000,
+    hours: null, engine: "2x Mercury 225hk", rating: null, vat: "incl", active: true,
+    sources: [
+      { name: "Blocket", url: "https://www.blocket.se/mobility/item/22403236" },
+      { name: "Båtgiganten", url: "https://xn--btgiganten-15a.se/begagnad-flipper-till-salu/" }
+    ]
+  },
+  {
+    id: 23, model: "900 ST",
+    title: "Flipper 900 ST 2019 – Båtgiganten, 36 timmar",
+    desc: "Återförsäljare, 2x Mercury 200hk, mycket låg drifttid.",
+    year: 2019, country: "SE", countryName: "Sverige", city: "Stockholm",
+    priceOrig: 2199000, priceOrigCur: "SEK", priceSEK: 2199000,
+    hours: 36, engine: "2x Mercury 200hk", rating: 5, vat: "incl", active: true,
+    sources: [
+      { name: "Blocket", url: "https://www.blocket.se/mobility/item/22323283" },
+      { name: "Båtgiganten", url: "https://xn--btgiganten-15a.se/begagnad-flipper-till-salu/" }
+    ]
+  },
+  {
+    id: 24, model: "900 ST",
+    title: "Flipper 900 ST 2023 Silkeborg – 1x Mercury 450hk",
+    desc: "Sportbåt-konfiguration",
+    year: 2023, country: "DK", countryName: "Danmark", city: "Silkeborg",
+    priceOrig: 180800, priceOrigCur: "EUR", priceSEK: Math.round(180800 * 10.86),
+    hours: null, engine: "1x Mercury 450hk", rating: 4, vat: "incl", active: true,
+    sources: [{ name: "Boat24", url: "https://www.boat24.com/en/powerboats/flipper/flipper-900-st/" }]
+  },
+  {
+    id: 25, model: "900 ST",
+    title: "Flipper 900 ST 2020 – Siim Båd, 156h, full service",
+    desc: "✅ VERIFIERAD 22 maj: 156h, Mercury-garanti t.o.m. 03/2025.",
+    year: 2020, country: "DK", countryName: "Danmark", city: "Silkeborg",
+    priceOrig: null, priceOrigCur: "DKK", priceSEK: null,
+    hours: 156, engine: "Mercury 300hk", rating: 5, vat: "incl", active: true,
+    sources: [
+      { name: "DBA.dk", url: "https://www.dba.dk/flipper-900-st-2020/id-511078645/" },
+      { name: "Siim Båd", url: "https://www.siim.dk/baade-og-motorer/" }
+    ]
+  },
+  {
+    id: 26, model: "900 ST",
+    title: "Flipper 900 ST 2023 Varsinais-Suomi – 2x Yamaha F225",
+    desc: "✅ VERIFIERAD 22 maj: Yamaha (inte Mercury) F225.",
+    year: 2023, country: "FI", countryName: "Finland", city: "Varsinais-Suomi",
+    priceOrig: 211200, priceOrigCur: "EUR", priceSEK: Math.round(211200 * 10.86),
+    hours: null, engine: "2x Yamaha F225", rating: 4, vat: "incl", active: true,
+    sources: [{ name: "Tori.fi", url: "https://www.tori.fi/koko_suomi/veneet?ca=13&cg=2050&w=3&o=52" }]
+  },
+  // ── Sålda / inaktiva ──
+  {
+    id: 90, model: "900 ST",
+    title: "Flipper 900 ST 2023 – Siim Båd – 130h",
+    desc: "2x Mercury 225hk V6, Mercury-garanti t.o.m. 17/5/2028",
+    year: 2023, country: "DK", countryName: "Danmark", city: "Silkeborg",
+    priceOrig: 1349900, priceOrigCur: "DKK", priceSEK: Math.round(1349900 * 1.4545),
+    hours: 130, engine: "2x Mercury 225hk V6", rating: 5, vat: "incl",
+    active: false, soldStatus: "SOLGT",
+    sources: [{ name: "Siim Båd", url: "https://www.siim.dk/baade-og-motorer/flipper-900-st-med-2-x-mercury-225-hk/" }]
+  },
+  {
+    id: 91, model: "880 ST",
+    title: "Flipper 880 ST 2016 – Yachtgarage – 70h",
+    desc: "Möjligen samma båt som DBA-annons. Markerad SOLGT.",
+    year: 2016, country: "DK", countryName: "Danmark", city: "Köpenhamn",
+    priceOrig: 900000, priceOrigCur: "DKK", priceSEK: Math.round(900000 * 1.4545),
+    hours: 70, engine: "2x Mercury Verado 250hk", rating: 5, vat: "incl",
+    active: false, soldStatus: "SOLGT",
+    sources: [{ name: "Yachtgarage", url: "https://yachtgarage.dk/product/flipper-880-st-den-perfekte-familie-og-turbaad/" }]
+  },
+  {
+    id: 92, model: "880 ST",
+    title: "Flipper 880 ST 2016 – Seacastle (SÅLD)",
+    desc: "⚠️ Seacastle-sidan markerad 'Såld'. 2x Mercury Verado 250, 300h, joystick.",
+    year: 2016, country: "SE", countryName: "Sverige", city: "Stockholm-trakten",
+    priceOrig: null, priceOrigCur: "SEK", priceSEK: null,
+    hours: 300, engine: "2x Mercury Verado 250hk", rating: 4, vat: "incl",
+    active: false, soldStatus: "SÅLD",
+    sources: [{ name: "Seacastle", url: "https://seacastle.se/batar/flipper-880-st-inkommande/" }]
+  },
+  {
+    id: 93, model: "900 ST",
+    title: "Flipper 900 ST 2021 – Seacastle (SÅLD)",
+    desc: "⚠️ Seacastle markerad 'Såld'. 2x Verado V8-300, 260h, teakdurkar, Simrad 12\", solceller.",
+    year: 2021, country: "SE", countryName: "Sverige", city: "Stockholm-trakten",
+    priceOrig: null, priceOrigCur: "SEK", priceSEK: null,
+    hours: 260, engine: "2x Mercury Verado V8 300hk", rating: 4, vat: "incl",
+    active: false, soldStatus: "SÅLD",
+    sources: [{ name: "Seacastle", url: "https://seacastle.se/batar/flipper-900-st/" }]
+  }
+];
+
+// ============================================================
+// SCRAPED DATA – injected by scraper.py
+// ============================================================
+<!-- SCRAPED_DATA_START -->
+const scrapedBoats = [];
+const lastScraped = null;
+<!-- SCRAPED_DATA_END -->
+
+// ============================================================
+// MERGE seed + scraped
+// ============================================================
+function normalizeTitle(t) {
+  return (t || "").toLowerCase().replace(/\s+/g, " ").trim();
+}
+
+function mergeBots() {
+  // Keep all seed boats
+  const merged = seedBoats.map(b => ({ ...b, scraped: false }));
+  const seedTitles = new Set(seedBoats.map(b => normalizeTitle(b.title)));
+  const seedUrls = new Set();
+  seedBoats.forEach(b => (b.sources || []).forEach(s => {
+    const parts = (s.url || "").split("/");
+    if (parts.length > 3) seedUrls.add(parts[parts.length - 1]);
+  }));
+
+  let newCount = 0;
+  (scrapedBoats || []).forEach(b => {
+    // Skip if same title or same URL tail already in seed
+    const titleKey = normalizeTitle(b.title);
+    if (seedTitles.has(titleKey)) return;
+    const urlTail = ((b.sources || [])[0] || {}).url || "";
+    const tail = urlTail.split("/").filter(Boolean).pop() || "";
+    if (tail && seedUrls.has(tail)) return;
+    seedTitles.add(titleKey);
+    if (tail) seedUrls.add(tail);
+    merged.push({ ...b, scraped: true });
+    newCount++;
+  });
+
+  return { merged, newCount };
+}
+
+// ============================================================
+// SOURCE DEFINITIONS (for the Sources tab)
+// ============================================================
+const sourceDefs = [
+  {
+    region: "🇸🇪 Sverige",
+    entries: [
+      { name: "Blocket Båt",         url: "https://www.blocket.se/annonser/hela_sverige/fritid_hobby/batar_vattensport?q=flipper+880+st", type: "marknadsplats", scraped: true },
+      { name: "Scanboat (SE)",        url: "https://www.scanboat.com/en/boat-market/boats?SearchCriteria.BoatModelText=Flipper+880+ST", type: "aggregator", scraped: true },
+      { name: "Boat24 (SE)",          url: "https://www.boat24.com/en/powerboats/flipper/flipper-880-st/", type: "aggregator", scraped: true },
+      { name: "Båtgiganten",          url: "https://xn--btgiganten-15a.se/begagnad-flipper-till-salu/", type: "mäklare", scraped: false },
+      { name: "Seacastle",            url: "https://seacastle.se/batar/", type: "mäklare", scraped: false },
+      { name: "Flipper Marin (Täby)", url: "https://www.flippermarin.se/begagnat/", type: "återförs.", scraped: false },
+      { name: "Skåne Marin",          url: "https://www.skanemarin.se/", type: "återförs.", scraped: false },
+      { name: "Eriksson Marine",      url: "https://www.emarin.se/till-salu/", type: "mäklare", scraped: false },
+      { name: "Knape Marin",          url: "https://www.knapemarin.se/", type: "mäklare", scraped: false },
+      { name: "Lerkils Båtvarv",      url: "https://lerkils-batvarv.se/", type: "mäklare", scraped: false },
+    ]
+  },
+  {
+    region: "🇩🇰 Danmark",
+    entries: [
+      { name: "DBA.dk",               url: "https://www.dba.dk/soeg/?q=Flipper+880+ST", type: "marknadsplats", scraped: true },
+      { name: "Boat24 (DK)",          url: "https://www.boat24.com/dk/", type: "aggregator", scraped: true },
+      { name: "Scanboat (DA)",        url: "https://www.scanboat.com/da/baadmarked/baade", type: "aggregator", scraped: true },
+      { name: "Siim Båd og Motor",    url: "https://www.siim.dk/", type: "officiell importör", scraped: false },
+      { name: "Yachtgarage",          url: "https://yachtgarage.dk/", type: "mäklare", scraped: false },
+      { name: "Båt-Holm AS",          url: "https://www.bat-holm.dk/", type: "mäklare", scraped: false },
+    ]
+  },
+  {
+    region: "🇫🇮 Finland",
+    entries: [
+      { name: "Nettivene",            url: "https://www.nettivene.com/moottorivene/flipper/880-st/", type: "marknadsplats", scraped: true },
+      { name: "Tori.fi",              url: "https://www.tori.fi/koko_suomi?q=Flipper+880+ST&ca=13&cg=2050&w=3", type: "marknadsplats", scraped: true },
+      { name: "Venepörssi",           url: "https://www.veneporssi.fi/", type: "marknadsplats", scraped: true },
+      { name: "Mascus Finland",       url: "https://www.mascus.fi/", type: "marknadsplats", scraped: true },
+      { name: "Flipper Market (HEL)", url: "https://www.flippermarket.fi/", type: "mäklare", scraped: false },
+      { name: "KX-Center (Pirkkala)", url: "https://www.kx-center.fi/", type: "återförs.", scraped: false },
+      { name: "Vääksyn Konepiste",    url: "https://vaaksynkonepiste.fi/", type: "officiell återförs.", scraped: false },
+    ]
+  },
+  {
+    region: "🇪🇪 Estland",
+    entries: [
+      { name: "Auto24.ee",            url: "https://eng.auto24.ee/vehicles/list.php?a=110&otsi=Flipper+880", type: "marknadsplats", scraped: true },
+      { name: "Veetehnika.ee",        url: "https://eng.veetehnika.ee/", type: "marknadsplats", scraped: true },
+      { name: "Mototehnika.ee",       url: "https://www.mototehnika.ee/kasutatud/nimekiri.php?a=110", type: "marknadsplats", scraped: false },
+      { name: "Bellmarine",           url: "https://bellmarine.ee/", type: "officiell återförs.", scraped: false },
+      { name: "Alter Marine",         url: "https://altermarine.ee/", type: "service/mäklare", scraped: false },
+    ]
+  },
+  {
+    region: "🇱🇻 Lettland / 🇱🇹 Litauen",
+    entries: [
+      { name: "ss.lv (LV)",           url: "https://www.ss.lv/en/transport/water-transport/motor-boats/", type: "marknadsplats", scraped: false },
+      { name: "Autos.lt (LT)",        url: "https://en.autos.lt/boats/", type: "marknadsplats", scraped: false },
+      { name: "Skelbiu.lt (LT)",      url: "https://www.skelbiu.lt/skelbimai/?keywords=Flipper+880", type: "marknadsplats", scraped: false },
+    ]
+  },
+  {
+    region: "🇵🇱 Polen",
+    entries: [
+      { name: "Gratka.pl",            url: "https://gratka.pl/motoryzacja/lodzi-motorowych?slowa-kluczowe=flipper+880", type: "marknadsplats", scraped: false },
+      { name: "Otomoto.pl",           url: "https://www.otomoto.pl/motorowodne?search%5Bfilter_str%5D%5Bq%5D=flipper", type: "marknadsplats", scraped: false },
+      { name: "Marinero.pl",          url: "https://marinero.pl/lodzie/flipper/", type: "återförs.", scraped: false },
+    ]
+  },
+  {
+    region: "🌍 Pan-europeisk",
+    entries: [
+      { name: "YachtWorld",           url: "https://www.yachtworld.com/boats-for-sale/manufacturer-flipper/", type: "aggregator", scraped: false },
+      { name: "Boats.com",            url: "https://www.boats.com/", type: "aggregator", scraped: false },
+      { name: "TheYachtMarket",       url: "https://www.theyachtmarket.com/", type: "aggregator", scraped: false },
+      { name: "DailyBoats",           url: "https://dailyboats.com/", type: "aggregator", scraped: false },
+    ]
+  }
+];
+
+const monitoringPlan = [
+  "<b>Scanboat sökagent</b> – Skapa konto → Boats for sale → filter Flipper 880/900 ST → 'Spara sökning' → mejl vid ny annons. Täcker SE/DK/FI/EE i en träff.",
+  "<b>Boat24 sökagent</b> – Spara sökning på Flipper 880 ST resp. 900 ST. Bra för cross-border.",
+  "<b>Blocket bevakning</b> – Spara sökning i Blocket-appen → pushnotis.",
+  "<b>DBA.dk søgeagent</b> – 'Opret søgeagent' på Flipper 880/900 ST.",
+  "<b>Nettivene hakuvahti</b> – Skapa 'sökvakt' för Flipper 880/900 ST. Mejl vid nya träffar.",
+  "<b>Tori.fi sökvakt</b> – Aktivera 'Sökvakt' på modellsökning.",
+  "<b>YachtWorld + Boats.com</b> – 'Save search' på Flipper 900 ST, EU-region.",
+  "<b>Mäklare direkt</b> – Mejla Båtgiganten, Flipper Marin, Siim Båd, Seacastle: 'Kontakta oss när ni får in en 880/900 ST'. Många säljs innan annonsering."
+];
+
+// ============================================================
+// RENDER LOGIC
+// ============================================================
+const EUR_SEK = 10.86;
+const DKK_SEK = 1.4545;
+
+let currentTab = "active";
+let sortKey = "year";
+let sortDir = "desc";
+let allBoats = [];
+
+function init() {
+  const { merged, newCount } = mergeBots();
+  allBoats = merged;
+
+  // Update scraped pill
+  const pill = document.getElementById("pill-scraped");
+  if (lastScraped) {
+    pill.textContent = `✅ Scrapad: ${lastScraped}`;
+    pill.classList.remove("warn");
+    pill.classList.add("ok");
+  }
+  document.getElementById("stat-scraped").textContent = newCount;
+
+  // Populate source filter
+  const sel = document.getElementById("f-source");
+  const sources = [...new Set(allBoats.flatMap(b => (b.sources||[]).map(s => s.name)))].sort();
+  sources.forEach(s => {
+    const opt = document.createElement("option");
+    opt.value = s; opt.textContent = s;
+    sel.appendChild(opt);
+  });
+
+  renderSources();
+  renderMonitoring();
+  renderTable();
+}
+
+function fmt(n) {
+  if (n == null) return "–";
+  return n.toLocaleString("sv-SE");
+}
+
+function renderStars(r) {
+  if (r == null) return '<span class="stars-unknown">–</span>';
+  let s = '<span class="stars">';
+  for (let i = 1; i <= 5; i++) s += i <= r ? "★" : '<span class="star-dim">★</span>';
+  return s + "</span>";
+}
+
+function hoursCell(h) {
+  if (h == null) return '<span class="hours-na">okänt</span>';
+  const cls = h < 100 ? "hours-low" : h < 300 ? "hours-med" : "hours-high";
+  return `<span class="${cls}">${h} h</span>`;
+}
+
+function vatLabel(v) {
+  if (v === "incl") return '<span class="vat-tag vat-incl">Inkl.</span>';
+  if (v === "excl") return '<span class="vat-tag vat-excl">Ej inkl.</span>';
+  return '<span class="vat-tag vat-private">Privat</span>';
+}
+
+const FLAGS = { SE:"🇸🇪", DK:"🇩🇰", FI:"🇫🇮", EE:"🇪🇪", LV:"🇱🇻", LT:"🇱🇹", PL:"🇵🇱", DE:"🇩🇪" };
+
+function renderTable() {
+  const tbody = document.getElementById("boats-tbody");
+  let rows = allBoats.filter(b => currentTab === "active" ? b.active !== false : b.active === false);
+
+  // Filters
+  const fm = document.getElementById("f-model").value;
+  const fc = document.getElementById("f-country").value;
+  const fy = document.getElementById("f-year").value;
+  const fp = document.getElementById("f-price").value;
+  const fh = document.getElementById("f-hours").value;
+  const fr = document.getElementById("f-rating").value;
+  const fs = document.getElementById("f-source").value;
+  const ft = document.getElementById("f-search").value.toLowerCase();
+
+  if (fm) rows = rows.filter(b => b.model === fm);
+  if (fc) rows = rows.filter(b => b.country === fc);
+  if (fy) rows = rows.filter(b => !b.year || b.year >= +fy);
+  if (fp) rows = rows.filter(b => b.priceSEK == null || b.priceSEK <= +fp);
+  if (fh) rows = rows.filter(b => b.hours == null || b.hours <= +fh);
+  if (fr) rows = rows.filter(b => b.rating == null || b.rating >= +fr);
+  if (fs) rows = rows.filter(b => (b.sources||[]).some(s => s.name === fs));
+  if (ft) rows = rows.filter(b =>
+    (b.title + " " + (b.desc||"") + " " + (b.engine||"")).toLowerCase().includes(ft));
+
+  // Sort
+  rows.sort((a, b) => {
+    let av = a[sortKey], bv = b[sortKey];
+    const inf = sortDir === "asc" ? Infinity : -Infinity;
+    if (av == null) av = inf;
+    if (bv == null) bv = inf;
+    if (typeof av === "string") return sortDir === "asc" ? av.localeCompare(bv) : bv.localeCompare(av);
+    return sortDir === "asc" ? av - bv : bv - av;
+  });
+
+  tbody.innerHTML = rows.map(b => {
+    const soldCls = b.active === false ? " sold" : "";
+    const scrapedCls = b.scraped ? " scraped" : "";
+    const soldTag = b.active === false
+      ? `<span class="sold-tag">${b.soldStatus || "SÅLD"}</span>` : "";
+    const scrapedTag = b.scraped
+      ? `<span style="font-size:10px;color:var(--green);margin-left:6px;">⚡ scrapad</span>` : "";
+    const priceOrig = (b.priceOrigCur !== "SEK" && b.priceOrig != null)
+      ? `<div class="price-orig">${fmt(b.priceOrig)} ${b.priceOrigCur}</div>` : "";
+    return `
+<tr class="${soldCls}${scrapedCls}">
+  <td><span class="model-badge ${b.model === "880 ST" ? "model-880" : "model-900"}">${b.model}</span></td>
+  <td class="title-cell">
+    ${b.title}${soldTag}${scrapedTag}
+    <div class="desc">${b.desc || ""}</div>
+  </td>
+  <td>${b.year ?? "–"}</td>
+  <td>
+    <span class="flag">${FLAGS[b.country]||""}</span>${b.countryName||b.country||"–"}
+    ${b.city ? `<span class="city">${b.city}</span>` : ""}
+  </td>
+  <td>
+    <div class="price-sek">${b.priceSEK != null ? fmt(b.priceSEK) + " kr" : "–"}</div>
+    ${priceOrig}
+  </td>
+  <td>${hoursCell(b.hours)}</td>
+  <td style="font-size:12px;color:var(--text-dim)">${b.engine||"–"}</td>
+  <td>${renderStars(b.rating)}</td>
+  <td>${vatLabel(b.vat)}</td>
+  <td>
+    <div class="source-links">
+      ${(b.sources||[]).map(s => `<a class="source-link" href="${s.url}" target="_blank" rel="noopener">${s.name} ↗</a>`).join("")}
+    </div>
+  </td>
+</tr>`;
+  }).join("");
+
+  // Sort indicators
+  document.querySelectorAll("th[data-sort]").forEach(th => {
+    th.classList.remove("sorted-asc", "sorted-desc");
+    if (th.dataset.sort === sortKey) th.classList.add(`sorted-${sortDir}`);
+  });
+
+  updateStats();
+}
+
+function updateStats() {
+  const active = allBoats.filter(b => b.active !== false);
+  const sold   = allBoats.filter(b => b.active === false);
+  document.getElementById("stat-active").textContent = active.length;
+  document.getElementById("stat-sold").textContent   = sold.length;
+  document.getElementById("cnt-active").textContent  = active.length;
+  document.getElementById("cnt-sold").textContent    = sold.length;
+  document.getElementById("stat-880").textContent = active.filter(b => b.model === "880 ST").length;
+  document.getElementById("stat-900").textContent = active.filter(b => b.model === "900 ST").length;
+  const prices = active.map(b => b.priceSEK).filter(p => p != null);
+  document.getElementById("stat-price").textContent = prices.length
+    ? `${fmt(Math.min(...prices))} – ${fmt(Math.max(...prices))} kr` : "–";
+  const hours = active.map(b => b.hours).filter(h => h != null);
+  document.getElementById("stat-hours").textContent = hours.length ? Math.min(...hours) + " h" : "–";
+}
+
+function renderSources() {
+  document.getElementById("sources-grid").innerHTML = sourceDefs.map(group => `
+    <div class="source-card">
+      <h4>${group.region}</h4>
+      <ul>
+        ${group.entries.map(e => `
+          <li>
+            <a href="${e.url}" target="_blank" rel="noopener">${e.name}</a>
+            <span class="type">${e.type}</span>
+            <span class="scraper-badge ${e.scraped ? "" : "scraper-skip"}">${e.scraped ? "AUTO" : "MANUELL"}</span>
+          </li>`).join("")}
+      </ul>
+    </div>`).join("");
+}
+
+function renderMonitoring() {
+  document.getElementById("monitoring-list").innerHTML =
+    monitoringPlan.map(p => `<li>${p}</li>`).join("");
+}
+
+function resetFilters() {
+  ["f-model","f-country","f-year","f-price","f-hours","f-rating","f-source","f-search"]
+    .forEach(id => { document.getElementById(id).value = ""; });
+  renderTable();
+}
+
+function exportCSV() {
+  const rows = allBoats.filter(b => currentTab === "active" ? b.active !== false : b.active === false);
+  const hdr = ["Modell","Rubrik","År","Land","Ort","Pris SEK","Pris orig","Valuta","Timmar","Motor","Skick","Moms","Scrapad","Källor"];
+  const lines = [hdr.join(";"), ...rows.map(b => [
+    b.model,
+    `"${(b.title||"").replace(/"/g,'""')}"`,
+    b.year ?? "",
+    b.country ?? "",
+    `"${b.city||""}"`,
+    b.priceSEK ?? "",
+    b.priceOrig ?? "",
+    b.priceOrigCur ?? "",
+    b.hours ?? "",
+    `"${b.engine||""}"`,
+    b.rating ?? "",
+    b.vat ?? "",
+    b.scraped ? "ja" : "nej",
+    `"${(b.sources||[]).map(s => s.name + ": " + s.url).join(" | ")}"`
+  ].join(";"))];
+  const blob = new Blob(["﻿" + lines.join("\n")], { type: "text/csv;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `flipper_${currentTab}_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+// ── Event listeners ──
+document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => {
+  document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+  t.classList.add("active");
+  currentTab = t.dataset.tab;
+  const isTable = currentTab === "active" || currentTab === "sold";
+  document.getElementById("table-wrap").style.display  = isTable ? "block" : "none";
+  document.getElementById("filters").style.display     = isTable ? "flex"  : "none";
+  document.getElementById("tab-sources").style.display     = currentTab === "sources"    ? "block" : "none";
+  document.getElementById("tab-monitoring").style.display  = currentTab === "monitoring" ? "block" : "none";
+  if (isTable) renderTable();
+}));
+
+document.querySelectorAll("th[data-sort]").forEach(th => th.addEventListener("click", () => {
+  const k = th.dataset.sort;
+  sortDir = sortKey === k ? (sortDir === "asc" ? "desc" : "asc") : "desc";
+  sortKey = k;
+  renderTable();
+}));
+
+["f-model","f-country","f-year","f-price","f-hours","f-rating","f-source","f-search"]
+  .forEach(id => document.getElementById(id).addEventListener("input", renderTable));
+
+// Initial render
+init();
+</script>
+</body>
+</html>
