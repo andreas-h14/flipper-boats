@@ -206,10 +206,33 @@ def _pw_get(page, url, wait_ms=2000):
     try:
         page.goto(url, wait_until="domcontentloaded", timeout=25000)
         page.wait_for_timeout(wait_ms)
-        return page.content()
+        html = page.content()
+        if _is_sold_page(html):
+            log.info("  skipping sold/removed page: %s", url)
+            return None
+        return html
     except Exception as exc:
         log.warning("  pw_get failed %s: %s", url, exc)
         return None
+
+
+SOLD_MARKERS = [
+    "sold", "solgt", "såld", "såldes", "vendu",
+    "poistettu myynnistä",      # Nettivene FI
+    "ikke længere tilgængelig", # DBA.dk
+    "denna annons är borttagen",
+    "listing not found", "ad not found",
+    "this boat has been sold",
+    "båten är såld",
+]
+
+
+def _is_sold_page(html):
+    """Return True if the page content indicates a sold/removed listing."""
+    if not html:
+        return False
+    snippet = html.lower()[:12000]
+    return any(m in snippet for m in SOLD_MARKERS)
 
 
 def _extract_listings(html, model_label, query, source_name, base_url, country):
