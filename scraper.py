@@ -1,20 +1,27 @@
 #!/usr/bin/env python3
 """
 Flipper 880ST / 900ST — boat listing scraper.
-Scrapes Nordic/Baltic marketplaces and injects results into index.html.
+
+Strategy:
+  - Blocket & DBA.dk  → RSS feeds  (lightweight, not blocked)
+  - Scanboat, Boat24, Nettivene, Tori.fi, Auto24.ee → Playwright headless Chrome
+    (GitHub Actions datacenter IPs are blocked by these sites for plain requests)
 """
 
 import json
 import re
-import time
 import logging
+import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 from pathlib import Path
+
 import requests
 from bs4 import BeautifulSoup
+from playwright.sync_api import sync_playwright
 
-MODELS = [("880 ST", ["flipper 880 st", "flipper 880st"]),
-          ("900 ST", ["flipper 900 st", "flipper 900st"])]
+# ─── Config ──────────────────────────────────────────────────────────────────
+
+MODELS = [("880 ST", "flipper 880 st"), ("900 ST", "flipper 900 st")]
 
 HEADERS = {
     "User-Agent": (
@@ -22,51 +29,39 @@ HEADERS = {
         "AppleWebKit/537.36 (KHTML, like Gecko) "
         "Chrome/124.0.0.0 Safari/537.36"
     ),
-    "Accept-Language": "en-US,en;q=0.9,sv;q=0.8,fi;q=0.7,da;q=0.6",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    "Accept-Encoding": "gzip, deflate, br",
+    "Accept-Language": "en-US,en;q=0.9,sv;q=0.8",
+    "Accept": "text/html,application/xhtml+xml,*/*;q=0.8",
 }
 
 EUR_SEK = 10.86
 DKK_SEK = 1.4545
-PLN_SEK = 2.51
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger(__name__)
 
-
-# ─── HTTP helper ────────────────────────────────────────────────────────────
-
-def get(url, *, params=None, headers=None, as_json=False, timeout=20):
-    h = {**HEADERS, **(headers or {})}
-    for attempt in range(3):
-        try:
-            r = requests.get(url, params=params, headers=h, timeout=timeout)
-            r.raise_for_status()
-            return r.json() if as_json else r.text
-        except Exception as exc:
-            log.warning("  attempt %d failed for %s: %s", attempt + 1, url, exc)
-            if attempt < 2:
-                time.sleep(2 ** attempt)
-    return None
+_id_counter = 1000
 
 
-# ─── Price helpers ──────────────────────────────────────────────────────────
+# ─── Helpers ─────────────────────────────────────────────────────────────────
+
+def new_id():
+    global _id_counter
+    _id_counter += 1
+    return _id_counter
+
 
 def parse_price(text):
-    """Return (amount_int_or_None, currency_str)."""
     if not text:
         return None, "EUR"
-    text = text.strip()
-    cur = "EUR"
+    text = str(text).strip()
     tl = text.lower()
-    if "kr" in tl or "sek" in tl:
-        cur = "SEK"
-    elif "dkk" in tl or "dkr" in tl or "kr." in tl:
+    if "dkk" in tl or "dkr" in tl or "kr." in tl:
         cur = "DKK"
-    elif "pln" in tl or "zł" in tl:
-        cur = "PLN"
+    elif "kr" in tl or "sek" in tl:
+        cur = "SEK"
     elif "€" in text or "eur" in tl:
+        cur = "EUR"
+    else:
         cur = "EUR"
     digits = re.sub(r"[^\d]", "", text)
     return (int(digits) if digits else None), cur
@@ -75,39 +70,26 @@ def parse_price(text):
 def to_sek(amount, currency):
     if amount is None:
         return None
-    rates = {"SEK": 1, "EUR": EUR_SEK, "DKK": DKK_SEK, "PLN": PLN_SEK}
-    return round(amount * rates.get(currency, 1))
+    return round(amount * {"SEK": 1.0, "EUR": EUR_SEK, "DKK": DKK_SEK}.get(currency, 1.0))
 
 
-# ─── Boat factory ───────────────────────────────────────────────────────────
-
-_id_counter = 1000
-
-def new_id():
-    global _id_counter
-    _id_counter += 1
-    return _id_counter
-
-
-def boat(*, title, model, year, price_orig, currency, hours, engine,
-         country, city, url, source_name, vat="unknown"):
-    price_sek = to_sek(price_orig, currency)
+def make_boat(*, title, model, year, price_orig, currency, hours, engine,
+              country, city, url, source_name, vat="unknown"):
     return {
         "id": new_id(),
         "model": model,
-        "title": title,
+        "title": title[:200],
         "desc": f"Scraped {datetime.now(timezone.utc).strftime('%Y-%m-%d')} · {source_name}",
         "year": year,
         "country": country,
         "countryName": {
             "SE": "Sverige", "DK": "Danmark", "FI": "Finland",
-            "EE": "Estland", "LV": "Lettland", "LT": "Litauen",
-            "PL": "Polen", "DE": "Tyskland",
-        }.get(country, country or ""),
+            "EE": "Estland", "LV": "Lettland", "LT": "Litauen", "PL": "Polen",
+        }.get(country or "", country or ""),
         "city": city,
         "priceOrig": price_orig,
         "priceOrigCur": currency,
-        "priceSEK": price_sek,
+        "priceSEK": to_sek(price_orig, currency),
         "hours": hours,
         "engine": engine,
         "rating": None,
@@ -118,428 +100,317 @@ def boat(*, title, model, year, price_orig, currency, hours, engine,
     }
 
 
-# ─── Blocket (SE) ────────────────────────────────────────────────────────────
+def matches_model(text, queries):
+    tl = text.lower()
+    return any(q in tl or q.replace(" ", "") in tl for q in queries)
 
-def scrape_blocket():
-    """Use Blocket's internal search API (returns JSON via __NEXT_DATA__)."""
+
+# ─── RSS scrapers (lightweight, not blocked) ─────────────────────────────────
+
+def _rss_get(url):
+    try:
+        r = requests.get(url, headers=HEADERS, timeout=15)
+        r.raise_for_status()
+        return ET.fromstring(r.content)
+    except Exception as exc:
+        log.warning("  RSS failed %s: %s", url, exc)
+        return None
+
+
+def scrape_blocket_rss():
+    """Blocket RSS feed — bypasses API 503 blocks."""
     results = []
-    for model_label, queries in MODELS:
-        q = queries[0]
-        # Blocket's REST search endpoint
-        api_url = "https://api.blocket.se/search_bff/v2/content"
-        params = {
-            "q": q,
-            "st": "s",          # for sale
-            "ca": "5050",       # Boats & watersports category
-            "hits_per_page": 60,
-            "page": 1,
-        }
-        data = get(api_url, params=params, as_json=True,
-                   headers={"Accept": "application/json"})
-        if not data:
-            # Fallback: scrape search page and read __NEXT_DATA__
-            page_url = (
-                "https://www.blocket.se/annonser/hela_sverige/fritid_hobby"
-                f"/batar_vattensport?q={q.replace(' ', '+')}"
-            )
-            html = get(page_url)
-            if not html:
-                continue
-            soup = BeautifulSoup(html, "lxml")
-            nd = soup.find("script", id="__NEXT_DATA__")
-            if not nd:
-                continue
-            try:
-                nd_data = json.loads(nd.string)
-                items = (
-                    nd_data.get("props", {})
-                    .get("pageProps", {})
-                    .get("listings", [])
-                )
-            except (json.JSONDecodeError, AttributeError):
-                continue
-        else:
-            items = data.get("data", [])
-
-        for item in items:
-            subject = item.get("subject", "")
-            if not any(q in subject.lower() for q in queries):
-                continue
-            price_val = (item.get("price") or {}).get("value")
-            location_list = item.get("location") or []
-            city = location_list[-1].get("name") if location_list else None
-            ad_id = item.get("ad_id") or item.get("id", "")
-            is_private = (item.get("account_type", "") == "private")
-            results.append(boat(
-                title=subject,
-                model=model_label,
-                year=None,
-                price_orig=price_val,
-                currency="SEK",
-                hours=None,
-                engine=None,
-                country="SE",
-                city=city,
-                url=f"https://www.blocket.se/annons/{ad_id}",
-                source_name="Blocket",
-                vat="private" if is_private else "incl",
-            ))
-    return results
-
-
-# ─── Scanboat (SE/DK/FI/EU) ──────────────────────────────────────────────────
-
-def scrape_scanboat():
-    results = []
-    for model_label, queries in MODELS:
-        q = queries[0]
-        url = (
-            "https://www.scanboat.com/en/boat-market/boats"
-            f"?SearchCriteria.BoatModelText={q.replace(' ', '+')}"
-        )
-        html = get(url)
-        if not html:
+    for model_label, query in MODELS:
+        q = query.replace(" ", "+")
+        tree = _rss_get(f"https://www.blocket.se/rss/fritid_hobby?q={q}&st=s")
+        if tree is None:
             continue
-        soup = BeautifulSoup(html, "lxml")
-        for item in soup.select("article.boat-list-item, .boat-item, li.boat"):
-            title_el = item.select_one("h2, h3, .boat-name, .title")
-            price_el = item.select_one(".price, .boat-price, [class*=price]")
-            year_el = item.select_one(".year, [class*=year]")
-            loc_el = item.select_one(".location, [class*=location]")
-            link_el = item.select_one("a[href]")
-            if not title_el:
+        for item in tree.findall(".//item"):
+            title = (item.findtext("title") or "").strip()
+            if not matches_model(title, [query]):
                 continue
-            title = title_el.get_text(" ", strip=True)
-            if not any(qv in title.lower() for qv in queries):
-                continue
-            price_orig, cur = parse_price(price_el.get_text() if price_el else "")
-            year_m = re.search(r"\b(20\d{2}|19\d{2})\b",
-                               year_el.get_text() if year_el else title)
-            year = int(year_m.group()) if year_m else None
-            city = loc_el.get_text(strip=True) if loc_el else None
-            href = link_el.get("href", "") if link_el else ""
-            full_url = ("https://www.scanboat.com" + href
-                        if href.startswith("/") else href or url)
-            results.append(boat(
-                title=title, model=model_label, year=year,
-                price_orig=price_orig, currency=cur,
+            link = (item.findtext("link") or "").strip()
+            desc_html = item.findtext("description") or ""
+            desc_text = re.sub(r"<[^>]+>", " ", desc_html)
+            # Price often appears as "1 500 000 kr" in title or description
+            price_m = re.search(r"([\d\s]{4,})\s*kr", title + " " + desc_text)
+            price_orig, currency = parse_price(price_m.group().strip() if price_m else "")
+            year_m = re.search(r"\b(20\d{2}|19\d{2})\b", title + " " + desc_text)
+            city_m = re.search(r"[-–]\s*([A-ZÅÄÖ][a-zåäö]+(?:\s[A-ZÅÄÖ]?[a-zåäö]+)?)$", title)
+            results.append(make_boat(
+                title=title, model=model_label,
+                year=int(year_m.group()) if year_m else None,
+                price_orig=price_orig, currency=currency or "SEK",
                 hours=None, engine=None,
-                country=None, city=city,
-                url=full_url, source_name="Scanboat",
+                country="SE", city=city_m.group(1) if city_m else None,
+                url=link, source_name="Blocket",
+                vat="private",
             ))
     return results
 
 
-# ─── Boat24 (EU) ──────────────────────────────────────────────────────────────
-
-def scrape_boat24():
+def scrape_dba_rss():
+    """DBA.dk RSS feed."""
     results = []
-    slugs = {"880 ST": "flipper-880-st", "900 ST": "flipper-900-st"}
-    for model_label, queries in MODELS:
-        slug = slugs[model_label]
-        url = f"https://www.boat24.com/en/powerboats/flipper/{slug}/"
-        html = get(url)
-        if not html:
+    for model_label, query in MODELS:
+        q = query.replace(" ", "+")
+        tree = _rss_get(f"https://www.dba.dk/rss/?q={q}&sort=rel")
+        if tree is None:
             continue
-        soup = BeautifulSoup(html, "lxml")
-        for item in soup.select("article, .boat-list-item, .result-item"):
-            title_el = item.select_one("h2, h3, .title, [class*=title]")
-            price_el = item.select_one("[class*=price]")
-            link_el = item.select_one("a[href]")
-            if not title_el:
+        for item in tree.findall(".//item"):
+            title = (item.findtext("title") or "").strip()
+            if not matches_model(title, [query]):
                 continue
-            title = title_el.get_text(" ", strip=True)
-            price_orig, cur = parse_price(price_el.get_text() if price_el else "")
-            href = link_el.get("href", "") if link_el else ""
-            full_url = ("https://www.boat24.com" + href
-                        if href.startswith("/") else href or url)
-            year_m = re.search(r"\b(20\d{2}|19\d{2})\b", title)
-            results.append(boat(
-                title=title, model=model_label, year=int(year_m.group()) if year_m else None,
-                price_orig=price_orig, currency=cur,
-                hours=None, engine=None,
-                country=None, city=None,
-                url=full_url, source_name="Boat24",
-            ))
-    return results
-
-
-# ─── Nettivene (FI) ──────────────────────────────────────────────────────────
-
-def scrape_nettivene():
-    results = []
-    for model_label, queries in MODELS:
-        slug = "880-st" if "880" in model_label else "900-st"
-        for url in [
-            f"https://www.nettivene.com/en/moottorivene/flipper/{slug}/",
-            f"https://www.nettivene.com/moottorivene/flipper/{slug}/",
-        ]:
-            html = get(url)
-            if html:
-                break
-        if not html:
-            continue
-        soup = BeautifulSoup(html, "lxml")
-        for item in soup.select(".ad-list-item, .result, li.boat-item"):
-            title_el = item.select_one("h2, h3, .ad-title, .title")
-            price_el = item.select_one("[class*=price]")
-            loc_el = item.select_one("[class*=location], [class*=city]")
-            link_el = item.select_one("a[href]")
-            if not title_el:
-                continue
-            title = title_el.get_text(" ", strip=True)
-            if not any(qv in title.lower() for qv in queries):
-                continue
-            price_orig, cur = parse_price(price_el.get_text() if price_el else "")
-            city = loc_el.get_text(strip=True) if loc_el else None
-            href = link_el.get("href", "") if link_el else ""
-            full_url = ("https://www.nettivene.com" + href
-                        if href.startswith("/") else href or url)
-            year_m = re.search(r"\b(20\d{2}|19\d{2})\b", title)
-            results.append(boat(
-                title=title, model=model_label, year=int(year_m.group()) if year_m else None,
-                price_orig=price_orig, currency=cur or "EUR",
-                hours=None, engine=None,
-                country="FI", city=city,
-                url=full_url, source_name="Nettivene",
-            ))
-    return results
-
-
-# ─── Tori.fi (FI) ────────────────────────────────────────────────────────────
-
-def scrape_tori():
-    results = []
-    for model_label, queries in MODELS:
-        q = queries[0]
-        html = get("https://www.tori.fi/koko_suomi",
-                   params={"q": q, "ca": "13", "cg": "2050", "w": "3"})
-        if not html:
-            continue
-        soup = BeautifulSoup(html, "lxml")
-        for item in soup.select(".item_row_flex, .list_item, [class*=item-row]"):
-            title_el = item.select_one(".li-title, h2, h3, [class*=title]")
-            price_el = item.select_one(".list_price, .price_value, [class*=price]")
-            loc_el = item.select_one(".cat_geo, [class*=location], [class*=geo]")
-            link_el = item.select_one("a[href]")
-            if not title_el:
-                continue
-            title = title_el.get_text(" ", strip=True)
-            price_orig, cur = parse_price(price_el.get_text() if price_el else "")
-            city = loc_el.get_text(strip=True) if loc_el else None
-            href = link_el.get("href", "") if link_el else ""
-            full_url = ("https://www.tori.fi" + href
-                        if href.startswith("/") else href or "https://www.tori.fi")
-            year_m = re.search(r"\b(20\d{2}|19\d{2})\b", title)
-            results.append(boat(
-                title=title, model=model_label, year=int(year_m.group()) if year_m else None,
-                price_orig=price_orig, currency=cur or "EUR",
-                hours=None, engine=None,
-                country="FI", city=city,
-                url=full_url, source_name="Tori.fi",
-            ))
-    return results
-
-
-# ─── DBA.dk (DK) ─────────────────────────────────────────────────────────────
-
-def scrape_dba():
-    results = []
-    for model_label, queries in MODELS:
-        q = queries[0]
-        url = f"https://www.dba.dk/soeg/?q={q.replace(' ', '+')}&sort=rel&ab=0"
-        html = get(url)
-        if not html:
-            continue
-        soup = BeautifulSoup(html, "lxml")
-        for item in soup.select(".listing-item, .srp-item, article[class*=listing]"):
-            title_el = item.select_one("h2, h3, [class*=title]")
-            price_el = item.select_one("[class*=price]")
-            link_el = item.select_one("a[href]")
-            if not title_el:
-                continue
-            title = title_el.get_text(" ", strip=True)
-            if not any(qv in title.lower() for qv in queries):
-                continue
-            price_orig, cur = parse_price(price_el.get_text() if price_el else "")
-            if cur == "EUR":
-                cur = "DKK"  # DBA prices are DKK
-            href = link_el.get("href", "") if link_el else ""
-            full_url = ("https://www.dba.dk" + href
-                        if href.startswith("/") else href or "https://www.dba.dk")
-            results.append(boat(
+            link = (item.findtext("link") or "").strip()
+            desc_html = item.findtext("description") or ""
+            desc_text = re.sub(r"<[^>]+>", " ", desc_html)
+            combined = title + " " + desc_text
+            price_m = re.search(r"([\d\s.,]{4,})\s*(kr\.?|dkk)", combined.lower())
+            price_orig, currency = parse_price(price_m.group() if price_m else "")
+            if not currency or currency == "EUR":
+                currency = "DKK"
+            results.append(make_boat(
                 title=title, model=model_label, year=None,
-                price_orig=price_orig, currency=cur,
+                price_orig=price_orig, currency=currency,
                 hours=None, engine=None,
                 country="DK", city=None,
-                url=full_url, source_name="DBA.dk",
+                url=link, source_name="DBA.dk",
             ))
     return results
 
 
-# ─── Auto24.ee (EE) ──────────────────────────────────────────────────────────
+# ─── Playwright scrapers ──────────────────────────────────────────────────────
 
-def scrape_auto24():
+def _pw_get(page, url, wait_ms=2000):
+    try:
+        page.goto(url, wait_until="domcontentloaded", timeout=25000)
+        page.wait_for_timeout(wait_ms)
+        return page.content()
+    except Exception as exc:
+        log.warning("  pw_get failed %s: %s", url, exc)
+        return None
+
+
+def _extract_listings(html, model_label, query, source_name, base_url, country):
+    """
+    Generic extraction: find anchor tags whose text contains the model query,
+    then walk up the DOM to find price/year context.
+    """
+    if not html:
+        return []
+    soup = BeautifulSoup(html, "lxml")
     results = []
-    for model_label, queries in MODELS:
-        q = queries[0]
-        for url in [
-            f"https://eng.auto24.ee/vehicles/list.php?a=110&otsi={q.replace(' ', '+')}",
-            f"https://www.auto24.ee/kasutatud/nimekiri.php?a=110&otsi={q.replace(' ', '+')}",
-        ]:
-            html = get(url)
-            if html:
+    seen_hrefs = set()
+
+    for a in soup.find_all("a", href=True):
+        text = a.get_text(" ", strip=True)
+        href = a.get("href", "").strip()
+        if not href or href in seen_hrefs:
+            continue
+        if not matches_model(text, [query, query.replace(" ", "")]):
+            continue
+        # Skip navigation/menu links (too short)
+        if len(text) < 8:
+            continue
+        seen_hrefs.add(href)
+
+        # Climb the DOM for price context
+        price_orig, currency = None, "EUR"
+        year = None
+        container = a
+        for _ in range(5):
+            parent = container.parent
+            if parent is None:
                 break
-        if not html:
+            container = parent
+            ctx = container.get_text(" ")
+            if not price_orig:
+                pm = re.search(r"([\d\s]{4,})\s*(€|kr\.?|dkk|eur)", ctx.lower())
+                if pm:
+                    price_orig, currency = parse_price(pm.group())
+            if not year:
+                ym = re.search(r"\b(20\d{2}|19\d{2})\b", ctx)
+                if ym:
+                    year = int(ym.group())
+            if price_orig and year:
+                break
+
+        full_url = (base_url.rstrip("/") + href
+                    if href.startswith("/") else href)
+        # Skip anchors that point back to the listing index page itself
+        if full_url.rstrip("/") == base_url.rstrip("/"):
             continue
-        soup = BeautifulSoup(html, "lxml")
-        for item in soup.select(".result-item, tr.result, .aditem, li[class*=item]"):
-            title_el = item.select_one("h2, h3, .title, td.title, [class*=title]")
-            price_el = item.select_one("[class*=price], td.price")
-            link_el = item.select_one("a[href]")
-            if not title_el:
-                continue
-            title = title_el.get_text(" ", strip=True)
-            if not any(qv in title.lower() for qv in queries):
-                continue
-            price_orig, cur = parse_price(price_el.get_text() if price_el else "")
-            href = link_el.get("href", "") if link_el else ""
-            full_url = ("https://eng.auto24.ee" + href
-                        if href.startswith("/") else href or url)
-            results.append(boat(
-                title=title, model=model_label, year=None,
-                price_orig=price_orig, currency=cur or "EUR",
-                hours=None, engine=None,
-                country="EE", city="Tallinn",
-                url=full_url, source_name="Auto24.ee",
-            ))
+
+        results.append(make_boat(
+            title=text, model=model_label, year=year,
+            price_orig=price_orig, currency=currency or "EUR",
+            hours=None, engine=None,
+            country=country, city=None,
+            url=full_url, source_name=source_name,
+        ))
     return results
 
 
-# ─── Venepörssi (FI) ─────────────────────────────────────────────────────────
-
-def scrape_veneporssi():
+def _pw_scanboat(page):
     results = []
-    for model_label, queries in MODELS:
-        q = queries[0]
-        html = get(f"https://www.veneporssi.fi/haku?q={q.replace(' ', '+')}")
-        if not html:
-            continue
-        soup = BeautifulSoup(html, "lxml")
-        for item in soup.select("article, .ad-item, li[class*=listing]"):
-            title_el = item.select_one("h2, h3, [class*=title]")
-            price_el = item.select_one("[class*=price]")
-            link_el = item.select_one("a[href]")
-            if not title_el:
-                continue
-            title = title_el.get_text(" ", strip=True)
-            if not any(qv in title.lower() for qv in queries):
-                continue
-            price_orig, cur = parse_price(price_el.get_text() if price_el else "")
-            href = link_el.get("href", "") if link_el else ""
-            full_url = ("https://www.veneporssi.fi" + href
-                        if href.startswith("/") else href)
-            results.append(boat(
-                title=title, model=model_label, year=None,
-                price_orig=price_orig, currency=cur or "EUR",
-                hours=None, engine=None,
-                country="FI", city=None,
-                url=full_url, source_name="Venepörssi",
-            ))
+    for model_label, query in MODELS:
+        q = query.replace(" ", "+")
+        url = f"https://www.scanboat.com/en/boat-market/boats?SearchCriteria.BoatModelText={q}"
+        html = _pw_get(page, url)
+        results.extend(_extract_listings(
+            html, model_label, query, "Scanboat",
+            "https://www.scanboat.com", None,
+        ))
     return results
 
 
-# ─── Mascus (FI/Baltic) ───────────────────────────────────────────────────────
-
-def scrape_mascus():
+def _pw_boat24(page):
     results = []
-    for model_label, queries in MODELS:
-        q = queries[0]
-        html = get(f"https://www.mascus.com/search#q={q.replace(' ', '%20')}&type=boats")
-        if not html:
-            continue
-        soup = BeautifulSoup(html, "lxml")
-        for item in soup.select("article, .search-result-item, li[class*=item]"):
-            title_el = item.select_one("h2, h3, [class*=title]")
-            price_el = item.select_one("[class*=price]")
-            link_el = item.select_one("a[href]")
-            if not title_el:
-                continue
-            title = title_el.get_text(" ", strip=True)
-            if not any(qv in title.lower() for qv in queries):
-                continue
-            price_orig, cur = parse_price(price_el.get_text() if price_el else "")
-            href = link_el.get("href", "") if link_el else ""
-            full_url = ("https://www.mascus.com" + href
-                        if href.startswith("/") else href)
-            results.append(boat(
-                title=title, model=model_label, year=None,
-                price_orig=price_orig, currency=cur or "EUR",
-                hours=None, engine=None,
-                country=None, city=None,
-                url=full_url, source_name="Mascus",
-            ))
+    slugs = {"880 ST": "flipper-880-st", "900 ST": "flipper-900-st"}
+    for model_label, query in MODELS:
+        url = f"https://www.boat24.com/en/powerboats/flipper/{slugs[model_label]}/"
+        html = _pw_get(page, url)
+        results.extend(_extract_listings(
+            html, model_label, query, "Boat24",
+            "https://www.boat24.com", None,
+        ))
     return results
 
 
-# ─── Veetehnika.ee (EE) ───────────────────────────────────────────────────────
-
-def scrape_veetehnika():
+def _pw_nettivene(page):
     results = []
-    for model_label, queries in MODELS:
-        q = queries[0]
-        html = get(f"https://eng.veetehnika.ee/vehicles/list.php?a=110&otsi={q.replace(' ', '+')}")
-        if not html:
-            continue
-        soup = BeautifulSoup(html, "lxml")
-        for item in soup.select(".result-item, tr.result, [class*=aditem]"):
-            title_el = item.select_one("h2, h3, [class*=title], td.title")
-            price_el = item.select_one("[class*=price], td.price")
-            link_el = item.select_one("a[href]")
-            if not title_el:
-                continue
-            title = title_el.get_text(" ", strip=True)
-            if not any(qv in title.lower() for qv in queries):
-                continue
-            price_orig, cur = parse_price(price_el.get_text() if price_el else "")
-            href = link_el.get("href", "") if link_el else ""
-            full_url = ("https://eng.veetehnika.ee" + href
-                        if href.startswith("/") else href or "https://eng.veetehnika.ee")
-            results.append(boat(
-                title=title, model=model_label, year=None,
-                price_orig=price_orig, currency=cur or "EUR",
-                hours=None, engine=None,
-                country="EE", city=None,
-                url=full_url, source_name="Veetehnika.ee",
-            ))
+    for model_label, query in MODELS:
+        slug = "880-st" if "880" in model_label else "900-st"
+        url = f"https://www.nettivene.com/en/moottorivene/flipper/{slug}/"
+        html = _pw_get(page, url)
+        results.extend(_extract_listings(
+            html, model_label, query, "Nettivene",
+            "https://www.nettivene.com", "FI",
+        ))
     return results
+
+
+def _pw_tori(page):
+    results = []
+    for model_label, query in MODELS:
+        q = query.replace(" ", "+")
+        # Try multiple URL formats — Tori.fi has changed their URL structure
+        for url in [
+            f"https://www.tori.fi/koko_suomi?q={q}&ca=13&w=3",
+            f"https://www.tori.fi/koko_suomi/veneet?q={q}&w=3",
+            f"https://www.tori.fi/koko_suomi?q={q}&w=3",
+        ]:
+            html = _pw_get(page, url)
+            found = _extract_listings(
+                html, model_label, query, "Tori.fi",
+                "https://www.tori.fi", "FI",
+            )
+            if found:
+                results.extend(found)
+                break
+    return results
+
+
+def _pw_auto24(page):
+    results = []
+    for model_label, query in MODELS:
+        q = query.replace(" ", "+")
+        # Try different URL structures for Auto24
+        for url in [
+            f"https://eng.auto24.ee/boats/?q={q}",
+            f"https://eng.auto24.ee/search/?q={q}&category=boats",
+            f"https://www.auto24.ee/kasutatud/nimekiri.php?a=110&otsi={q}",
+        ]:
+            html = _pw_get(page, url, wait_ms=3000)
+            found = _extract_listings(
+                html, model_label, query, "Auto24.ee",
+                "https://eng.auto24.ee", "EE",
+            )
+            if found:
+                results.extend(found)
+                break
+    return results
+
+
+def _pw_veneporssi(page):
+    results = []
+    for model_label, query in MODELS:
+        q = query.replace(" ", "+")
+        for url in [
+            f"https://www.veneporssi.fi/haku?hakusana={q}",
+            f"https://www.veneporssi.fi/?s={q}",
+        ]:
+            html = _pw_get(page, url)
+            found = _extract_listings(
+                html, model_label, query, "Venepörssi",
+                "https://www.veneporssi.fi", "FI",
+            )
+            if found:
+                results.extend(found)
+                break
+    return results
+
+
+def run_playwright_scrapers():
+    all_results = []
+    scrapers = [
+        ("Scanboat",    _pw_scanboat),
+        ("Boat24",      _pw_boat24),
+        ("Nettivene",   _pw_nettivene),
+        ("Tori.fi",     _pw_tori),
+        ("Auto24.ee",   _pw_auto24),
+        ("Venepörssi",  _pw_veneporssi),
+    ]
+    with sync_playwright() as p:
+        browser = p.chromium.launch(
+            headless=True,
+            args=["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
+        )
+        ctx = browser.new_context(
+            user_agent=HEADERS["User-Agent"],
+            locale="en-US",
+            viewport={"width": 1280, "height": 900},
+        )
+        page = ctx.new_page()
+        # Block images/fonts to speed up loading
+        page.route("**/*.{png,jpg,jpeg,gif,svg,woff,woff2,ttf,eot}", lambda r: r.abort())
+
+        for name, fn in scrapers:
+            log.info("Scraping %s (Playwright) ...", name)
+            try:
+                found = fn(page)
+                log.info("  → %d listings", len(found))
+                all_results.extend(found)
+            except Exception as exc:
+                log.error("  → FAILED: %s", exc)
+
+        browser.close()
+    return all_results
 
 
 # ─── Dedup ───────────────────────────────────────────────────────────────────
 
 def dedup(boats_list):
-    """Keep first occurrence per (normalized_title, year) or URL path."""
     seen_urls = set()
     seen_title_year = set()
     out = []
     for b in boats_list:
-        url_key = None
+        url_tail = None
         for s in b.get("sources", []):
-            u = s.get("url", "")
-            parts = u.rstrip("/").split("/")
-            if parts and len(parts[-1]) > 3:
-                url_key = parts[-1]
+            parts = s.get("url", "").rstrip("/").split("/")
+            if parts and len(parts[-1]) > 4:
+                url_tail = parts[-1]
                 break
         title_key = (
-            re.sub(r"\s+", " ", b.get("title", "").lower().strip()),
+            re.sub(r"\s+", " ", (b.get("title") or "").lower().strip()),
             b.get("year"),
         )
-        if url_key and url_key in seen_urls:
+        if url_tail and url_tail in seen_urls:
             continue
         if title_key[0] and title_key in seen_title_year:
             continue
-        if url_key:
-            seen_urls.add(url_key)
+        if url_tail:
+            seen_urls.add(url_tail)
         if title_key[0]:
             seen_title_year.add(title_key)
         out.append(b)
@@ -564,7 +435,6 @@ def inject(boats_list, html_path="index.html"):
         f"{MARKER_END}"
     )
     if MARKER_START in html:
-        # Use lambda so JSON backslashes aren't misread as regex backreferences
         html = re.sub(
             re.escape(MARKER_START) + r".*?" + re.escape(MARKER_END),
             lambda _: block,
@@ -572,7 +442,6 @@ def inject(boats_list, html_path="index.html"):
             flags=re.DOTALL,
         )
     else:
-        # First run: insert just before the closing </script> of the main script block
         html = html.replace(
             "// Initial render\nrenderTable();",
             f"{block}\n\n// Initial render\nrenderTable();",
@@ -583,23 +452,11 @@ def inject(boats_list, html_path="index.html"):
 
 # ─── Main ────────────────────────────────────────────────────────────────────
 
-SCRAPERS = [
-    ("Blocket",      scrape_blocket),
-    ("Scanboat",     scrape_scanboat),
-    ("Boat24",       scrape_boat24),
-    ("Nettivene",    scrape_nettivene),
-    ("Tori.fi",      scrape_tori),
-    ("DBA.dk",       scrape_dba),
-    ("Auto24.ee",    scrape_auto24),
-    ("Venepörssi",   scrape_veneporssi),
-    ("Veetehnika",   scrape_veetehnika),
-    ("Mascus",       scrape_mascus),
-]
-
-
 def main():
     all_boats = []
-    for name, fn in SCRAPERS:
+
+    # Lightweight RSS scrapers (no bot blocking)
+    for name, fn in [("Blocket (RSS)", scrape_blocket_rss), ("DBA.dk (RSS)", scrape_dba_rss)]:
         log.info("Scraping %s ...", name)
         try:
             found = fn()
@@ -607,16 +464,21 @@ def main():
             all_boats.extend(found)
         except Exception as exc:
             log.error("  → FAILED: %s", exc)
-        time.sleep(1.5)
+
+    # Playwright scrapers (headless Chrome bypasses bot protection)
+    log.info("Starting Playwright scrapers ...")
+    try:
+        found = run_playwright_scrapers()
+        all_boats.extend(found)
+    except Exception as exc:
+        log.error("Playwright scrapers FAILED: %s", exc)
 
     boats = dedup(all_boats)
     log.info("Total after dedup: %d", len(boats))
 
-    # Save raw JSON for debugging
     Path("boats_scraped.json").write_text(
         json.dumps(boats, ensure_ascii=False, indent=2), encoding="utf-8"
     )
-
     inject(boats)
 
 
