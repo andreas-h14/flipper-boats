@@ -216,6 +216,27 @@ def _pw_get(page, url, wait_ms=2000):
         return None
 
 
+COUNTRY_MAP = {
+    "sweden": "SE", "sverige": "SE",
+    "denmark": "DK", "danmark": "DK",
+    "finland": "FI", "suomi": "FI",
+    "estonia": "EE", "eesti": "EE",
+    "latvia": "LV", "lettland": "LV",
+    "lithuania": "LT", "litauen": "LT",
+    "norway": "NO", "norge": "NO",
+    "germany": "DE", "deutschland": "DE",
+    "poland": "PL", "polska": "PL",
+    "netherlands": "NL", "holland": "NL",
+    "belgium": "BE", "belgien": "BE",
+    "france": "FR", "frankrike": "FR",
+}
+
+# Regex patterns that indicate a commercial seller (not private)
+DEALER_PATTERN = re.compile(
+    r"\b(A/S|AS\b|AB\b|OÜ|Oy\b|GmbH|Ltd\b|LLC|SIA|UAB|BV\b|S\.A\.|SRL|NV\b|Båt|Marin|Marine|Båtar|Yachts?|Boats?)\b",
+    re.IGNORECASE,
+)
+
 SOLD_MARKERS = [
     "sold", "solgt", "såld", "såldes", "vendu",
     "poistettu myynnistä",      # Nettivene FI
@@ -305,16 +326,207 @@ def _extract_listings(html, model_label, query, source_name, base_url, country):
     return results
 
 
+def _parse_scanboat_text(text):
+    """
+    Parse Scanboat's structured anchor/context text into clean fields.
+    Input e.g.: "Flipper 900 ST 213,660 EUR Motorboat | Year : 2026 | Country : Denmark
+                 Engine : 2 x Mercury 250 Verado Siim Båd og Motor A/S ..."
+    """
+    # Year
+    year = None
+    ym = re.search(r"Year\s*[:\-]\s*(\d{4})", text, re.IGNORECASE)
+    if ym:
+        year = int(ym.group(1))
+    else:
+        ym = re.search(r"\b(20\d{2}|19\d{2})\b", text)
+        if ym:
+            year = int(ym.group())
+
+    # Country
+    country_code = None
+    cm = re.search(
+        r"Country\s*[:\-]\s*([A-Za-zÆØÅæøåÄÖä ]{3,25}?)(?:\s+Engine|\s*\||\s{3,}|$)",
+        text, re.IGNORECASE,
+    )
+    if cm:
+        country_code = COUNTRY_MAP.get(cm.group(1).strip().lower())
+
+    # Engine – grab text after "Engine :" until whitespace runs out or dealer name starts
+    engine = None
+    em = re.search(r"Engine\s*[:\-]\s*(.{5,120})", text, re.IGNORECASE)
+    if em:
+        raw = em.group(1).strip()
+        # Stop at two+ consecutive spaces
+        raw = re.split(r"\s{2,}", raw)[0]
+        # Stop before broker/dealer names (e.g. "Navark Yachtbrokers", "Siim Båd", "Båtgiganten")
+        raw = re.sub(
+            r"\s+(?:[A-ZÆØÅ][a-zæøå]+\s+){0,2}(?:Yachtbroker|Broker|Marin|Marine|Båd\b|Båtar|Yachts?\b|Boats?\b|A/S|AS\b|AB\b|OÜ|GmbH|Ltd).*$",
+            "", raw, flags=re.IGNORECASE,
+        ).strip()
+        # Limit and clean
+        engine = raw[:80].strip() if raw else None
+
+    # Dealer detection
+    is_dealer = bool(DEALER_PATTERN.search(text))
+
+    # Clean title: keep only "Flipper 880/900 ST" before price/noise
+    # 1. Split on first pipe and take the left part
+    clean = re.split(r"\s*\|", text)[0].strip()
+    # 2. Strip trailing "Motorboat" / "Sailboat" etc.
+    clean = re.sub(r"\s+(Motorboat|Sailboat|Motor\s*Boat)\b.*$", "", clean, flags=re.IGNORECASE).strip()
+    # 3. Strip trailing price fragment e.g. "213,660 EUR" or "1 500 000 kr"
+    clean = re.sub(r"\s+\d[\d,. ]+\s*(EUR|SEK|DKK|€)\s*$", "", clean, flags=re.IGNORECASE).strip()
+    # 4. Remove remaining price anywhere (in case of no pipe separator)
+    clean = re.sub(r"\s+\d[\d,. ]{3,}\s*(EUR|SEK|DKK|€)", "", clean, flags=re.IGNORECASE).strip()
+    # 5. Strip leading words before "Flipper" (e.g. Danish "Mere Flipper" = "Also Flipper")
+    clean = re.sub(r"^.{0,20}?\b(Flipper\b)", r"\1", clean).strip()
+
+    return {
+        "title": clean or "Flipper",
+        "year": year,
+        "country_code": country_code,
+        "engine": engine,
+        "is_dealer": is_dealer,
+    }
+
+
 def _pw_scanboat(page):
     results = []
     for model_label, query in MODELS:
         q = query.replace(" ", "+")
         url = f"https://www.scanboat.com/en/boat-market/boats?SearchCriteria.BoatModelText={q}"
-        html = _pw_get(page, url)
-        results.extend(_extract_listings(
-            html, model_label, query, "Scanboat",
-            "https://www.scanboat.com", None,
-        ))
+        html = _pw_get(page, url, wait_ms=2000)
+        if not html:
+            continue
+
+        soup = BeautifulSoup(html, "lxml")
+        seen_hrefs = set()
+
+        for a in soup.find_all("a", href=True):
+            href = a.get("href", "")
+            # Only match individual boat listing pages (contain a numeric ID segment)
+            if not re.search(r"/boat-market/boats/\w+-flipper-", href):
+                continue
+            if href in seen_hrefs:
+                continue
+            seen_hrefs.add(href)
+
+            # Walk up the DOM until we find a container with price OR Year info
+            # but stop before the text gets too long (avoids grabbing the whole page)
+            container = a
+            ctx_text = a.get_text(" ", strip=True)
+            for _ in range(6):
+                parent = container.parent
+                if parent is None:
+                    break
+                candidate = parent.get_text(" ", strip=True)
+                if len(candidate) > 900:
+                    break          # would be too broad
+                container = parent
+                ctx_text = candidate
+                if re.search(r"Year\s*[:\-]|Engine\s*[:\-]|\d{4,}\s*(EUR|SEK|DKK|€)", ctx_text, re.IGNORECASE):
+                    break          # found structured data — stop here
+
+            parsed = _parse_scanboat_text(ctx_text)
+            if not any(qv in parsed["title"].lower() for qv in [query, query.replace(" ", "")]):
+                continue
+
+            # Price from context text
+            pm = re.search(r"(\d[\d,. ]{3,})\s*(€|EUR|kr\.?|SEK|DKK)", ctx_text, re.IGNORECASE)
+            price_orig, currency = parse_price(pm.group() if pm else "")
+
+            full_url = ("https://www.scanboat.com" + href
+                        if href.startswith("/") else href)
+
+            results.append(make_boat(
+                title=parsed["title"],
+                model=model_label,
+                year=parsed["year"],
+                price_orig=price_orig,
+                currency=currency or "EUR",
+                hours=None,
+                engine=parsed["engine"],
+                country=parsed["country_code"],
+                city=None,
+                url=full_url,
+                source_name="Scanboat",
+                vat="incl" if parsed["is_dealer"] else "private",
+            ))
+    return results
+
+
+def _pw_blocket(page):
+    """
+    Blocket via Playwright.
+    Tries to extract structured data from __NEXT_DATA__ (Next.js),
+    falls back to rendered-HTML link extraction.
+    """
+    results = []
+    for model_label, query in MODELS:
+        q = query.replace(" ", "+")
+        url = (
+            "https://www.blocket.se/annonser/hela_sverige"
+            f"/fritid_hobby/batar_vattensport?q={q}"
+        )
+        try:
+            page.goto(url, wait_until="domcontentloaded", timeout=30000)
+            page.wait_for_timeout(3000)
+        except Exception as exc:
+            log.warning("  Blocket page load failed %s: %s", url, exc)
+            continue
+
+        html = page.content()
+        if _is_sold_page(html):
+            continue
+
+        soup = BeautifulSoup(html, "lxml")
+
+        # ── Try __NEXT_DATA__ first ──
+        nd = soup.find("script", id="__NEXT_DATA__")
+        if nd:
+            try:
+                data = json.loads(nd.string)
+                items = (
+                    data.get("props", {})
+                    .get("pageProps", {})
+                    .get("listings", [])
+                )
+                for item in items:
+                    subject = item.get("subject", "")
+                    if not any(qv in subject.lower() for qv in [query, query.replace(" ", "")]):
+                        continue
+                    price_data = item.get("price") or {}
+                    price = price_data.get("value")
+                    locs = item.get("location") or [{}]
+                    city = locs[-1].get("name") if locs else None
+                    ad_id = item.get("ad_id") or item.get("id", "")
+                    is_private = item.get("account_type") == "private"
+                    results.append(make_boat(
+                        title=subject,
+                        model=model_label,
+                        year=None,
+                        price_orig=price,
+                        currency="SEK",
+                        hours=None,
+                        engine=None,
+                        country="SE",
+                        city=city,
+                        url=f"https://www.blocket.se/annons/{ad_id}",
+                        source_name="Blocket",
+                        vat="private" if is_private else "incl",
+                    ))
+                if items:
+                    continue  # Got data from NEXT_DATA, skip fallback
+            except (json.JSONDecodeError, AttributeError, KeyError):
+                pass
+
+        # ── Fallback: rendered HTML links ──
+        found = _extract_listings(
+            html, model_label, query, "Blocket",
+            "https://www.blocket.se", "SE",
+        )
+        results.extend(found)
+
     return results
 
 
@@ -408,6 +620,7 @@ def _pw_veneporssi(page):
 def run_playwright_scrapers():
     all_results = []
     scrapers = [
+        ("Blocket",     _pw_blocket),
         ("Scanboat",    _pw_scanboat),
         ("Boat24",      _pw_boat24),
         ("Nettivene",   _pw_nettivene),
