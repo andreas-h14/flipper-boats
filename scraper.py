@@ -85,13 +85,72 @@ def to_sek(amount, currency):
     return round(amount * {"SEK": 1.0, "EUR": EUR_SEK, "DKK": DKK_SEK}.get(currency, 1.0))
 
 
+def assess_condition(text, year=None):
+    """
+    Heuristic 1–5 star condition rating from listing text + year fallback.
+    Returns None only when there's truly no signal at all.
+    """
+    if text:
+        tl = text.lower()
+
+        # 5 stars — as new / excellent
+        if any(w in tl for w in [
+            "som ny", "as new", "som nyt", "pristine", "mint condition",
+            "nylevererad", "nykøbt", "ny båt", "oanvänd", "ubrugt",
+            "perfekt skick", "perfekt stand", "toppskick", "topskick",
+        ]):
+            return 5
+
+        # Extract hours from text — strongest signal
+        hm = re.search(r"\b(\d+)\s*(?:timm?ar?|hours?|(?<!\w)h(?!\w)|timer|tuntia)\b", tl)
+        if hm:
+            h = int(hm.group(1))
+            if h < 50:   return 5
+            if h < 150:  return 4
+            if h < 400:  return 3
+            return 2
+
+        # 4 stars — well maintained
+        if any(w in tl for w in [
+            "välskött", "väl underhållen", "well maintained", "godt vedligeholdt",
+            "velholdt", "hyvin huollettu", "vinterförvarad", "inomhusförvara",
+            "hallförvaring", "service utförd", "nyservad", "nyrenoverad",
+            "mycket bra skick", "fint skick", "bra skick", "fine condition",
+            "entretenu", "sehr gut", "ausgezeichnet",
+        ]):
+            return 4
+
+        # 2 stars — needs work
+        if any(w in tl for w in [
+            "behöver renovering", "needs work", "trænger til", "projekt",
+            "säljes i befintligt", "as is", "skador", "damage",
+            "trasig", "broken", "defekt", "reparation",
+        ]):
+            return 2
+
+    # Year-based fallback (age as proxy for wear)
+    if year:
+        age = datetime.now(timezone.utc).year - year
+        if age <= 2:   return 5
+        if age <= 5:   return 4
+        if age <= 10:  return 3
+        return 2
+
+    return None  # truly unknown
+
+
 def make_boat(*, title, model, year, price_orig, currency, hours, engine,
-              country, city, url, source_name, vat="unknown"):
+              country, city, url, source_name, vat="unknown", rating=None,
+              listing_text=""):
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    # Build composite text for condition assessment (title + listing body)
+    combined = f"{title} {listing_text} {engine or ''}"
+    computed_rating = rating if rating is not None else assess_condition(combined, year)
     return {
         "id": new_id(),
         "model": model,
         "title": title[:200],
-        "desc": f"Scraped {datetime.now(timezone.utc).strftime('%Y-%m-%d')} · {source_name}",
+        "desc": f"Scraped {today} · {source_name}",
         "year": year,
         "country": country,
         "countryName": {
@@ -104,9 +163,10 @@ def make_boat(*, title, model, year, price_orig, currency, hours, engine,
         "priceSEK": to_sek(price_orig, currency),
         "hours": hours,
         "engine": engine,
-        "rating": None,
+        "rating": computed_rating,
         "vat": vat,
         "active": True,
+        "lastUpdated": today,
         "sources": [{"name": source_name, "url": url}],
         "scraped": True,
     }
@@ -129,11 +189,38 @@ def _rss_get(url):
         return None
 
 
+def _fetch_blocket_listing_text(url):
+    """
+    Fetch an individual Blocket listing page and return its description text.
+    Returns "" on failure (silently — we fall back to title-only assessment).
+    """
+    try:
+        r = requests.get(url, headers=HEADERS, timeout=8)
+        if r.status_code != 200:
+            return ""
+        soup = BeautifulSoup(r.text, "lxml")
+        # Blocket renders description in a <p> or <div> — try several selectors
+        for el in [
+            soup.find(attrs={"data-testid": re.compile(r"descr", re.I)}),
+            soup.find("section", class_=re.compile(r"descr|body|content", re.I)),
+            soup.find("p", class_=re.compile(r"descr", re.I)),
+            soup.find("main"),
+        ]:
+            if el:
+                t = el.get_text(" ", strip=True)
+                if len(t) > 60:
+                    return t[:1500]
+        return ""
+    except Exception:
+        return ""
+
+
 def scrape_blocket():
     """
     Blocket boat search via requests + HTML parsing.
     URL: /mobility/search/boat?q=... returns 200 with rendered listing data.
     Each listing is separated by the text 'Lägg till i favoriter'.
+    Also fetches individual listing pages to extract description for condition assessment.
     """
     results = []
     for model_label, query in MODELS:
@@ -225,6 +312,9 @@ def scrape_blocket():
             full_url = ("https://www.blocket.se" + listing_url
                         if listing_url.startswith("/") else listing_url)
 
+            # Fetch listing page for description (used for condition assessment)
+            listing_text = _fetch_blocket_listing_text(full_url)
+
             results.append(make_boat(
                 title=title,
                 model=model_label,
@@ -238,6 +328,7 @@ def scrape_blocket():
                 url=full_url,
                 source_name="Blocket",
                 vat="incl" if is_dealer else "private",
+                listing_text=listing_text,
             ))
     return results
 
@@ -563,6 +654,7 @@ def _pw_scanboat(page):
                 url=full_url,
                 source_name="Scanboat",
                 vat="incl" if parsed["is_dealer"] else "private",
+                listing_text=ctx_text,
             ))
     return results
 
@@ -854,11 +946,23 @@ def main():
     boats = dedup(all_boats)
     log.info("Total after dedup: %d", len(boats))
 
+    # Always write output files so git can detect the run (lastScraped timestamp changes)
     Path("boats_scraped.json").write_text(
         json.dumps(boats, ensure_ascii=False, indent=2), encoding="utf-8"
     )
     inject(boats)
+    log.info("Done. Ratings set: %d / %d boats",
+             sum(1 for b in boats if b.get("rating") is not None), len(boats))
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as exc:
+        # Last-resort: still update lastScraped even if something unexpected crashed
+        log.error("FATAL ERROR in main(): %s", exc)
+        try:
+            inject([])
+        except Exception:
+            pass
+        raise
