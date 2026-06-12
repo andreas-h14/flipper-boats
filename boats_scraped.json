@@ -3,7 +3,7 @@
     "id": 1001,
     "model": "880 ST",
     "title": "Flipper 880 ST",
-    "desc": "Scraped 2026-06-11 · Scanboat",
+    "desc": "Scraped 2026-06-12 · Scanboat",
     "year": 2015,
     "country": "SE",
     "countryName": "Sverige",
@@ -16,7 +16,7 @@
     "rating": 2,
     "vat": "private",
     "active": true,
-    "lastUpdated": "2026-06-11",
+    "lastUpdated": "2026-06-12",
     "sources": [
       {
         "name": "Scanboat",
@@ -29,7 +29,7 @@
     "id": 1002,
     "model": "880 ST",
     "title": "Flipper 880 ST",
-    "desc": "Scraped 2026-06-11 · Scanboat",
+    "desc": "Scraped 2026-06-12 · Scanboat",
     "year": 2017,
     "country": "SE",
     "countryName": "Sverige",
@@ -42,7 +42,7 @@
     "rating": 3,
     "vat": "incl",
     "active": true,
-    "lastUpdated": "2026-06-11",
+    "lastUpdated": "2026-06-12",
     "sources": [
       {
         "name": "Scanboat",
@@ -55,7 +55,7 @@
     "id": 1003,
     "model": "900 ST",
     "title": "Flipper 900 ST",
-    "desc": "Scraped 2026-06-11 · Scanboat",
+    "desc": "Scraped 2026-06-12 · Scanboat",
     "year": 2020,
     "country": "SE",
     "countryName": "Sverige",
@@ -68,7 +68,7 @@
     "rating": 3,
     "vat": "incl",
     "active": true,
-    "lastUpdated": "2026-06-11",
+    "lastUpdated": "2026-06-12",
     "sources": [
       {
         "name": "Scanboat",
@@ -81,7 +81,7 @@
     "id": 1004,
     "model": "900 ST",
     "title": "Flipper 900 ST",
-    "desc": "Scraped 2026-06-11 · Scanboat",
+    "desc": "Scraped 2026-06-12 · Scanboat",
     "year": 2021,
     "country": "SE",
     "countryName": "Sverige",
@@ -94,7 +94,7 @@
     "rating": 4,
     "vat": "private",
     "active": true,
-    "lastUpdated": "2026-06-11",
+    "lastUpdated": "2026-06-12",
     "sources": [
       {
         "name": "Scanboat",
@@ -107,7 +107,7 @@
     "id": 1005,
     "model": "900 ST",
     "title": "Flipper 900 ST",
-    "desc": "Scraped 2026-06-11 · Scanboat",
+    "desc": "Scraped 2026-06-12 · Scanboat",
     "year": 2026,
     "country": "DK",
     "countryName": "Danmark",
@@ -120,7 +120,7 @@
     "rating": 5,
     "vat": "incl",
     "active": true,
-    "lastUpdated": "2026-06-11",
+    "lastUpdated": "2026-06-12",
     "sources": [
       {
         "name": "Scanboat",
@@ -133,7 +133,7 @@
     "id": 1006,
     "model": "900 ST",
     "title": "Flipper 900 ST",
-    "desc": "Scraped 2026-06-11 · Scanboat",
+    "desc": "Scraped 2026-06-12 · Scanboat",
     "year": 2022,
     "country": "SE",
     "countryName": "Sverige",
@@ -146,7 +146,7 @@
     "rating": 4,
     "vat": "incl",
     "active": true,
-    "lastUpdated": "2026-06-11",
+    "lastUpdated": "2026-06-12",
     "sources": [
       {
         "name": "Scanboat",
@@ -159,7 +159,7 @@
     "id": 1007,
     "model": "900 ST",
     "title": "Flipper 900 ST",
-    "desc": "Scraped 2026-06-11 · Scanboat",
+    "desc": "Scraped 2026-06-12 · Scanboat",
     "year": 2023,
     "country": "SE",
     "countryName": "Sverige",
@@ -172,7 +172,7 @@
     "rating": 4,
     "vat": "incl",
     "active": true,
-    "lastUpdated": "2026-06-11",
+    "lastUpdated": "2026-06-12",
     "sources": [
       {
         "name": "Scanboat",
@@ -185,7 +185,7 @@
     "id": 1008,
     "model": "900 ST",
     "title": "Flipper 900 ST",
-    "desc": "Scraped 2026-06-11 · Scanboat",
+    "desc": "Scraped 2026-06-12 · Scanboat",
     "year": 2024,
     "country": "SE",
     "countryName": "Sverige",
@@ -198,7 +198,7 @@
     "rating": 5,
     "vat": "incl",
     "active": true,
-    "lastUpdated": "2026-06-11",
+    "lastUpdated": "2026-06-12",
     "sources": [
       {
         "name": "Scanboat",
@@ -211,7 +211,7 @@
     "id": 1012,
     "model": "900 ST",
     "title": "Flipper 900 ST",
-    "desc": "Scraped 2026-06-11 · Scanboat",
+    "desc": "Scraped 2026-06-12 · Scanboat",
     "year": 2019,
     "country": "SE",
     "countryName": "Sverige",
@@ -224,7 +224,7 @@
     "rating": 3,
     "vat": "incl",
     "active": true,
-    "lastUpdated": "2026-06-11",
+    "lastUpdated": "2026-06-12",
     "sources": [
       {
         "name": "Scanboat",
@@ -234,10 +234,10 @@
     "scraped": true
   },
   {
-    "id": 1024,
+    "id": 1023,
     "model": "900 ST",
     "title": "Flipper 900 ST",
-    "desc": "Scraped 2026-06-11 · Boat24",
+    "desc": "Scraped 2026-06-12 · Boat24",
     "year": 2025,
     "country": null,
     "countryName": "",
@@ -250,7 +250,7 @@
     "rating": 5,
     "vat": "unknown",
     "active": true,
-    "lastUpdated": "2026-06-11",
+    "lastUpdated": "2026-06-12",
     "sources": [
       {
         "name": "Boat24",
@@ -263,7 +263,7 @@
     "id": 1026,
     "model": "900 ST",
     "title": "Flipper 900 ST",
-    "desc": "Scraped 2026-06-11 · Boat24",
+    "desc": "Scraped 2026-06-12 · Boat24",
     "year": null,
     "country": null,
     "countryName": "",
@@ -276,7 +276,7 @@
     "rating": null,
     "vat": "unknown",
     "active": true,
-    "lastUpdated": "2026-06-11",
+    "lastUpdated": "2026-06-12",
     "sources": [
       {
         "name": "Boat24",
