@@ -3,7 +3,7 @@
     "id": 1001,
     "model": "880 ST",
     "title": "Flipper 880 ST",
-    "desc": "Scraped 2026-06-13 · Blocket",
+    "desc": "Scraped 2026-06-14 · Blocket",
     "year": null,
     "country": "SE",
     "countryName": "Sverige",
@@ -16,7 +16,7 @@
     "rating": 4,
     "vat": "incl",
     "active": true,
-    "lastUpdated": "2026-06-13",
+    "lastUpdated": "2026-06-14",
     "sources": [
       {
         "name": "Blocket",
@@ -28,34 +28,8 @@
   {
     "id": 1002,
     "model": "880 ST",
-    "title": ". Gå till annonsen Flipper 880 ST",
-    "desc": "Scraped 2026-06-13 · Blocket",
-    "year": 2015,
-    "country": "SE",
-    "countryName": "Sverige",
-    "city": "Nödinge",
-    "priceOrig": 1100000,
-    "priceOrigCur": "SEK",
-    "priceSEK": 1100000,
-    "hours": null,
-    "engine": "350 hk",
-    "rating": 4,
-    "vat": "private",
-    "active": true,
-    "lastUpdated": "2026-06-13",
-    "sources": [
-      {
-        "name": "Blocket",
-        "url": "https://www.blocket.se/mobility/item/23725388"
-      }
-    ],
-    "scraped": true
-  },
-  {
-    "id": 1003,
-    "model": "880 ST",
     "title": ". Gå till annonsen FLIPPER 880 ST med 2 x MERCURY 150 HK",
-    "desc": "Scraped 2026-06-13 · Blocket",
+    "desc": "Scraped 2026-06-14 · Blocket",
     "year": 2015,
     "country": "SE",
     "countryName": "Sverige",
@@ -68,20 +42,20 @@
     "rating": 4,
     "vat": "incl",
     "active": true,
-    "lastUpdated": "2026-06-13",
+    "lastUpdated": "2026-06-14",
     "sources": [
       {
         "name": "Blocket",
-        "url": "https://www.blocket.se/mobility/item/22706111"
+        "url": "https://www.blocket.se/mobility/item/23725388"
       }
     ],
     "scraped": true
   },
   {
-    "id": 1004,
+    "id": 1003,
     "model": "880 ST",
     "title": ". Gå till annonsen Flipper 880 ST säljes",
-    "desc": "Scraped 2026-06-13 · Blocket",
+    "desc": "Scraped 2026-06-14 · Blocket",
     "year": 2016,
     "country": "SE",
     "countryName": "Sverige",
@@ -94,20 +68,20 @@
     "rating": 4,
     "vat": "private",
     "active": true,
-    "lastUpdated": "2026-06-13",
+    "lastUpdated": "2026-06-14",
     "sources": [
       {
         "name": "Blocket",
-        "url": "https://www.blocket.se/mobility/item/23146226"
+        "url": "https://www.blocket.se/mobility/item/22706111"
       }
     ],
     "scraped": true
   },
   {
-    "id": 1006,
+    "id": 1005,
     "model": "880 ST",
     "title": ". Gå till annonsen Flipper 880ST",
-    "desc": "Scraped 2026-06-13 · Blocket",
+    "desc": "Scraped 2026-06-14 · Blocket",
     "year": 2018,
     "country": "SE",
     "countryName": "Sverige",
@@ -120,59 +94,59 @@
     "rating": 3,
     "vat": "private",
     "active": true,
-    "lastUpdated": "2026-06-13",
+    "lastUpdated": "2026-06-14",
     "sources": [
       {
         "name": "Blocket",
-        "url": "https://www.blocket.se/mobility/item/18905131"
+        "url": "https://www.blocket.se/mobility/item/22884777"
       }
     ],
     "scraped": true
   },
   {
-    "id": 1008,
+    "id": 1006,
+    "model": "880 ST",
+    "title": "Flipper 880 ST",
+    "desc": "Scraped 2026-06-14 · Blocket",
+    "year": 2017,
+    "country": "SE",
+    "countryName": "Sverige",
+    "city": "Stockholm",
+    "priceOrig": null,
+    "priceOrigCur": "SEK",
+    "priceSEK": null,
+    "hours": null,
+    "engine": "250 hk",
+    "rating": 3,
+    "vat": "incl",
+    "active": true,
+    "lastUpdated": "2026-06-14",
+    "sources": [
+      {
+        "name": "Blocket",
+        "url": "https://www.blocket.se/mobility/item/20920977"
+      }
+    ],
+    "scraped": true
+  },
+  {
+    "id": 1007,
     "model": "900 ST",
     "title": "Flipper 900 ST",
-    "desc": "Scraped 2026-06-13 · Blocket",
+    "desc": "Scraped 2026-06-14 · Blocket",
     "year": null,
     "country": "SE",
     "countryName": "Sverige",
-    "city": "Karlstad",
-    "priceOrig": 249900,
+    "city": "Täby",
+    "priceOrig": 1849000,
     "priceOrigCur": "SEK",
-    "priceSEK": 249900,
-    "hours": null,
-    "engine": null,
-    "rating": 4,
-    "vat": "incl",
-    "active": true,
-    "lastUpdated": "2026-06-13",
-    "sources": [
-      {
-        "name": "Blocket",
-        "url": "https://www.blocket.se/mobility/item/23930469"
-      }
-    ],
-    "scraped": true
-  },
-  {
-    "id": 1009,
-    "model": "900 ST",
-    "title": ". Gå till annonsen Flipper 900 ST - 19",
-    "desc": "Scraped 2026-06-13 · Blocket",
-    "year": 2019,
-    "country": "SE",
-    "countryName": "Sverige",
-    "city": "Norrköping",
-    "priceOrig": 1740000,
-    "priceOrigCur": "SEK",
-    "priceSEK": 1740000,
+    "priceSEK": 1849000,
     "hours": null,
     "engine": "400 hk",
     "rating": 5,
-    "vat": "private",
+    "vat": "incl",
     "active": true,
-    "lastUpdated": "2026-06-13",
+    "lastUpdated": "2026-06-14",
     "sources": [
       {
         "name": "Blocket",
@@ -182,27 +156,53 @@
     "scraped": true
   },
   {
-    "id": 1010,
+    "id": 1008,
     "model": "900 ST",
-    "title": ". Gå till annonsen Flipper 900 ST Mercury 2X200 SOMMARDRÖMMEN!",
-    "desc": "Scraped 2026-06-13 · Blocket",
-    "year": 2020,
+    "title": "Flipper 900 ST",
+    "desc": "Scraped 2026-06-14 · Blocket",
+    "year": 2019,
     "country": "SE",
     "countryName": "Sverige",
-    "city": "Täby",
-    "priceOrig": 1849000,
+    "city": "Stockholm",
+    "priceOrig": 2199000,
     "priceOrigCur": "SEK",
-    "priceSEK": 1849000,
+    "priceSEK": 2199000,
     "hours": null,
-    "engine": "400 hk",
-    "rating": 3,
+    "engine": "200 hk",
+    "rating": 5,
     "vat": "incl",
     "active": true,
-    "lastUpdated": "2026-06-13",
+    "lastUpdated": "2026-06-14",
     "sources": [
       {
         "name": "Blocket",
-        "url": "https://www.blocket.se/mobility/item/20585129"
+        "url": "https://www.blocket.se/mobility/item/22323283"
+      }
+    ],
+    "scraped": true
+  },
+  {
+    "id": 1010,
+    "model": "900 ST",
+    "title": ". Gå till annonsen Flipper 900 ST - 19",
+    "desc": "Scraped 2026-06-14 · Blocket",
+    "year": 2019,
+    "country": "SE",
+    "countryName": "Sverige",
+    "city": "Norrköping",
+    "priceOrig": 1740000,
+    "priceOrigCur": "SEK",
+    "priceSEK": 1740000,
+    "hours": null,
+    "engine": "400 hk",
+    "rating": 3,
+    "vat": "private",
+    "active": true,
+    "lastUpdated": "2026-06-14",
+    "sources": [
+      {
+        "name": "Blocket",
+        "url": "https://www.blocket.se/mobility/item/23778014"
       }
     ],
     "scraped": true
@@ -211,7 +211,7 @@
     "id": 1011,
     "model": "900 ST",
     "title": ". Gå till annonsen Flipper 900 ST",
-    "desc": "Scraped 2026-06-13 · Blocket",
+    "desc": "Scraped 2026-06-14 · Blocket",
     "year": 2021,
     "country": "SE",
     "countryName": "Sverige",
@@ -224,11 +224,11 @@
     "rating": 4,
     "vat": "incl",
     "active": true,
-    "lastUpdated": "2026-06-13",
+    "lastUpdated": "2026-06-14",
     "sources": [
       {
         "name": "Blocket",
-        "url": "https://www.blocket.se/mobility/item/22809155"
+        "url": "https://www.blocket.se/mobility/item/23777594"
       }
     ],
     "scraped": true
@@ -237,7 +237,7 @@
     "id": 1013,
     "model": "900 ST",
     "title": ". Gå till annonsen Flipper 900 ST - 2021 - 2x250 hk",
-    "desc": "Scraped 2026-06-13 · Blocket",
+    "desc": "Scraped 2026-06-14 · Blocket",
     "year": 2021,
     "country": "SE",
     "countryName": "Sverige",
@@ -250,11 +250,11 @@
     "rating": 4,
     "vat": "incl",
     "active": true,
-    "lastUpdated": "2026-06-13",
+    "lastUpdated": "2026-06-14",
     "sources": [
       {
         "name": "Blocket",
-        "url": "https://www.blocket.se/mobility/item/21700247"
+        "url": "https://www.blocket.se/mobility/item/23689819"
       }
     ],
     "scraped": true
@@ -263,7 +263,7 @@
     "id": 1014,
     "model": "900 ST",
     "title": ". Gå till annonsen Flipper 900ST - 2019 - 2 x200 HK Mercury",
-    "desc": "Scraped 2026-06-13 · Blocket",
+    "desc": "Scraped 2026-06-14 · Blocket",
     "year": 2019,
     "country": "SE",
     "countryName": "Sverige",
@@ -276,11 +276,11 @@
     "rating": 3,
     "vat": "private",
     "active": true,
-    "lastUpdated": "2026-06-13",
+    "lastUpdated": "2026-06-14",
     "sources": [
       {
         "name": "Blocket",
-        "url": "https://www.blocket.se/mobility/item/16357137"
+        "url": "https://www.blocket.se/mobility/item/21700247"
       }
     ],
     "scraped": true
@@ -289,7 +289,7 @@
     "id": 1015,
     "model": "900 ST",
     "title": "Flipper 900 ST",
-    "desc": "Scraped 2026-06-13 · Blocket",
+    "desc": "Scraped 2026-06-14 · Blocket",
     "year": 2020,
     "country": "SE",
     "countryName": "Sverige",
@@ -299,14 +299,14 @@
     "priceSEK": 499900,
     "hours": null,
     "engine": null,
-    "rating": 4,
+    "rating": 3,
     "vat": "incl",
     "active": true,
-    "lastUpdated": "2026-06-13",
+    "lastUpdated": "2026-06-14",
     "sources": [
       {
         "name": "Blocket",
-        "url": "https://www.blocket.se/mobility/item/16690880"
+        "url": "https://www.blocket.se/mobility/item/16357137"
       }
     ],
     "scraped": true
@@ -315,7 +315,7 @@
     "id": 1018,
     "model": "900 ST",
     "title": "Flipper 900 ST",
-    "desc": "Scraped 2026-06-13 · Blocket",
+    "desc": "Scraped 2026-06-14 · Blocket",
     "year": 2022,
     "country": "SE",
     "countryName": "Sverige",
@@ -325,14 +325,14 @@
     "priceSEK": 2179000,
     "hours": null,
     "engine": "225 hk",
-    "rating": 5,
+    "rating": 4,
     "vat": "incl",
     "active": true,
-    "lastUpdated": "2026-06-13",
+    "lastUpdated": "2026-06-14",
     "sources": [
       {
         "name": "Blocket",
-        "url": "https://www.blocket.se/mobility/item/22323283"
+        "url": "https://www.blocket.se/mobility/item/22403236"
       }
     ],
     "scraped": true
@@ -340,34 +340,8 @@
   {
     "id": 1019,
     "model": "900 ST",
-    "title": "Flipper 900 ST",
-    "desc": "Scraped 2026-06-13 · Blocket",
-    "year": 2019,
-    "country": "SE",
-    "countryName": "Sverige",
-    "city": "Stockholm",
-    "priceOrig": 2199000,
-    "priceOrigCur": "SEK",
-    "priceSEK": 2199000,
-    "hours": null,
-    "engine": "200 hk",
-    "rating": 3,
-    "vat": "incl",
-    "active": true,
-    "lastUpdated": "2026-06-13",
-    "sources": [
-      {
-        "name": "Blocket",
-        "url": "https://www.blocket.se/mobility/item/20831454"
-      }
-    ],
-    "scraped": true
-  },
-  {
-    "id": 1020,
-    "model": "900 ST",
     "title": ". Gå till annonsen Flipper 900 ST - 2024",
-    "desc": "Scraped 2026-06-13 · Blocket",
+    "desc": "Scraped 2026-06-14 · Blocket",
     "year": 2024,
     "country": "SE",
     "countryName": "Sverige",
@@ -380,20 +354,20 @@
     "rating": 5,
     "vat": "incl",
     "active": true,
-    "lastUpdated": "2026-06-13",
+    "lastUpdated": "2026-06-14",
     "sources": [
       {
         "name": "Blocket",
-        "url": "https://www.blocket.se/mobility/item/16964370"
+        "url": "https://www.blocket.se/mobility/item/19921547"
       }
     ],
     "scraped": true
   },
   {
-    "id": 1021,
+    "id": 1020,
     "model": "900 ST",
     "title": ". Gå till annonsen Flipper 900 ST 2 x F250",
-    "desc": "Scraped 2026-06-13 · Blocket",
+    "desc": "Scraped 2026-06-14 · Blocket",
     "year": 2024,
     "country": "SE",
     "countryName": "Sverige",
@@ -406,20 +380,20 @@
     "rating": 5,
     "vat": "incl",
     "active": true,
-    "lastUpdated": "2026-06-13",
+    "lastUpdated": "2026-06-14",
     "sources": [
       {
         "name": "Blocket",
-        "url": "https://www.blocket.se/mobility/item/16875184"
+        "url": "https://www.blocket.se/mobility/item/16964370"
       }
     ],
     "scraped": true
   },
   {
-    "id": 1022,
+    "id": 1021,
     "model": "880 ST",
     "title": "Flipper 880 ST",
-    "desc": "Scraped 2026-06-13 · Scanboat",
+    "desc": "Scraped 2026-06-14 · Scanboat",
     "year": 2015,
     "country": "SE",
     "countryName": "Sverige",
@@ -432,7 +406,7 @@
     "rating": 2,
     "vat": "private",
     "active": true,
-    "lastUpdated": "2026-06-13",
+    "lastUpdated": "2026-06-14",
     "sources": [
       {
         "name": "Scanboat",
@@ -442,36 +416,10 @@
     "scraped": true
   },
   {
-    "id": 1023,
-    "model": "880 ST",
-    "title": "Flipper 880 ST",
-    "desc": "Scraped 2026-06-13 · Scanboat",
-    "year": 2017,
-    "country": "SE",
-    "countryName": "Sverige",
-    "city": null,
-    "priceOrig": 150900,
-    "priceOrigCur": "EUR",
-    "priceSEK": 1638774,
-    "hours": null,
-    "engine": "Mercury",
-    "rating": 3,
-    "vat": "incl",
-    "active": true,
-    "lastUpdated": "2026-06-13",
-    "sources": [
-      {
-        "name": "Scanboat",
-        "url": "https://www.scanboat.com/en/boat-market/boats/motorboat-flipper-880-st-17534728"
-      }
-    ],
-    "scraped": true
-  },
-  {
-    "id": 1026,
+    "id": 1025,
     "model": "900 ST",
     "title": "Flipper 900 ST",
-    "desc": "Scraped 2026-06-13 · Scanboat",
+    "desc": "Scraped 2026-06-14 · Scanboat",
     "year": 2021,
     "country": "SE",
     "countryName": "Sverige",
@@ -484,7 +432,7 @@
     "rating": 4,
     "vat": "private",
     "active": true,
-    "lastUpdated": "2026-06-13",
+    "lastUpdated": "2026-06-14",
     "sources": [
       {
         "name": "Scanboat",
@@ -494,10 +442,10 @@
     "scraped": true
   },
   {
-    "id": 1027,
+    "id": 1026,
     "model": "900 ST",
     "title": "Flipper 900 ST",
-    "desc": "Scraped 2026-06-13 · Scanboat",
+    "desc": "Scraped 2026-06-14 · Scanboat",
     "year": 2026,
     "country": "DK",
     "countryName": "Danmark",
@@ -510,7 +458,7 @@
     "rating": 5,
     "vat": "incl",
     "active": true,
-    "lastUpdated": "2026-06-13",
+    "lastUpdated": "2026-06-14",
     "sources": [
       {
         "name": "Scanboat",
@@ -520,10 +468,10 @@
     "scraped": true
   },
   {
-    "id": 1029,
+    "id": 1028,
     "model": "900 ST",
     "title": "Flipper 900 ST",
-    "desc": "Scraped 2026-06-13 · Scanboat",
+    "desc": "Scraped 2026-06-14 · Scanboat",
     "year": 2023,
     "country": "SE",
     "countryName": "Sverige",
@@ -536,7 +484,7 @@
     "rating": 4,
     "vat": "incl",
     "active": true,
-    "lastUpdated": "2026-06-13",
+    "lastUpdated": "2026-06-14",
     "sources": [
       {
         "name": "Scanboat",
@@ -546,10 +494,10 @@
     "scraped": true
   },
   {
-    "id": 1030,
+    "id": 1029,
     "model": "900 ST",
     "title": "Flipper 900 ST",
-    "desc": "Scraped 2026-06-13 · Scanboat",
+    "desc": "Scraped 2026-06-14 · Scanboat",
     "year": 2024,
     "country": "SE",
     "countryName": "Sverige",
@@ -562,7 +510,7 @@
     "rating": 5,
     "vat": "incl",
     "active": true,
-    "lastUpdated": "2026-06-13",
+    "lastUpdated": "2026-06-14",
     "sources": [
       {
         "name": "Scanboat",
@@ -575,7 +523,7 @@
     "id": 1044,
     "model": "900 ST",
     "title": "Flipper 900 ST",
-    "desc": "Scraped 2026-06-13 · Boat24",
+    "desc": "Scraped 2026-06-14 · Boat24",
     "year": 2025,
     "country": null,
     "countryName": "",
@@ -588,7 +536,7 @@
     "rating": 5,
     "vat": "unknown",
     "active": true,
-    "lastUpdated": "2026-06-13",
+    "lastUpdated": "2026-06-14",
     "sources": [
       {
         "name": "Boat24",
