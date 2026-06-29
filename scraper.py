@@ -264,9 +264,10 @@ def scrape_blocket():
                 break
             text = " ".join(listing_texts[i].split())
 
-            # Filter to only Flipper 880/900 ST (exclude DC, HT, CC variants)
+            # Filter: require "Flipper 880" or "Flipper 900" as word boundary
+            # (avoids matching "900" inside prices like "259 900 kr")
             model_num = "880" if "880" in model_label else "900"
-            if "flipper" not in text.lower() or model_num not in text:
+            if not re.search(rf"\bFlipper\W{{0,3}}{model_num}\b", text, re.IGNORECASE):
                 continue
             # Skip other Flipper variants (DC, HT, CC, SC) unless title also has ST
             if re.search(r"\bFlipper\s+\d{3}\s*(DC|HT|CC|SC)\b", text, re.IGNORECASE):
@@ -280,7 +281,8 @@ def scrape_blocket():
             # Title: everything before "YYYY ∙" pattern
             title_m = re.match(r"^(.{5,80}?)\s+\d{4}\s*[∙·•]", text)
             title = title_m.group(1).strip() if title_m else f"Flipper {model_label}"
-            # Clean up title
+            # Clean up title: strip navigation noise and pipe-separated extras
+            title = re.sub(r"^[\.\s]*Gå\s+till\s+annonsen\s*", "", title, flags=re.IGNORECASE).strip()
             title = re.sub(r"\s*\|.*$", "", title).strip()
 
             # Year
