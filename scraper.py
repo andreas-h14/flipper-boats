@@ -269,6 +269,9 @@ def scrape_blocket():
             model_num = "880" if "880" in model_label else "900"
             if not re.search(rf"\bFlipper\W{{0,3}}{model_num}\b", text, re.IGNORECASE):
                 continue
+            # Skip "Köpes" / wanted-to-buy ads
+            if re.search(r"\bköpes\b|\bsökes\b|\bwanted\b", text[:200], re.IGNORECASE):
+                continue
             # Skip other Flipper variants (DC, HT, CC, SC) unless title also has ST
             if re.search(r"\bFlipper\s+\d{3}\s*(DC|HT|CC|SC)\b", text, re.IGNORECASE):
                 if not re.search(r"\bST\b", text):
@@ -316,6 +319,11 @@ def scrape_blocket():
 
             # Fetch listing page for description (used for condition assessment)
             listing_text = _fetch_blocket_listing_text(full_url)
+
+            # Skip "Köpes"/wanted ads that slip through the search results filter
+            if re.search(r"\bköpes\b|\bsökes\b|\bwanted\b", listing_text[:300], re.IGNORECASE):
+                log.info("  Blocket: skipping wanted-ad %s", full_url)
+                continue
 
             results.append(make_boat(
                 title=title,
