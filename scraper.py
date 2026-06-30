@@ -189,17 +189,19 @@ def _rss_get(url):
         return None
 
 
-def _fetch_blocket_listing_text(url):
+def _fetch_blocket_listing(url):
     """
-    Fetch an individual Blocket listing page and return its description text.
-    Returns "" on failure (silently — we fall back to title-only assessment).
+    Fetch an individual Blocket listing page.
+    Returns (h1_title, description_text). Both are "" on failure.
     """
     try:
         r = requests.get(url, headers=HEADERS, timeout=8)
         if r.status_code != 200:
-            return ""
+            return "", ""
         soup = BeautifulSoup(r.text, "lxml")
-        # Blocket renders description in a <p> or <div> — try several selectors
+        h1 = soup.find("h1")
+        h1_title = h1.get_text(" ", strip=True) if h1 else ""
+        desc = ""
         for el in [
             soup.find(attrs={"data-testid": re.compile(r"descr", re.I)}),
             soup.find("section", class_=re.compile(r"descr|body|content", re.I)),
@@ -209,10 +211,11 @@ def _fetch_blocket_listing_text(url):
             if el:
                 t = el.get_text(" ", strip=True)
                 if len(t) > 60:
-                    return t[:1500]
-        return ""
+                    desc = t[:1500]
+                    break
+        return h1_title, desc
     except Exception:
-        return ""
+        return "", ""
 
 
 def scrape_blocket():
@@ -317,12 +320,22 @@ def scrape_blocket():
             full_url = ("https://www.blocket.se" + listing_url
                         if listing_url.startswith("/") else listing_url)
 
-            # Fetch listing page for description (used for condition assessment)
-            listing_text = _fetch_blocket_listing_text(full_url)
+            # Fetch listing page: verify correct model + get description for condition
+            page_h1, listing_text = _fetch_blocket_listing(full_url)
 
             # Skip "Köpes"/wanted ads that slip through the search results filter
-            if re.search(r"\bköpes\b|\bsökes\b|\bwanted\b", listing_text[:300], re.IGNORECASE):
+            if re.search(r"\bköpes\b|\bsökes\b|\bwanted\b",
+                         (page_h1 + " " + listing_text)[:400], re.IGNORECASE):
                 log.info("  Blocket: skipping wanted-ad %s", full_url)
+                continue
+
+            # Verify the actual listing page title contains the right model number
+            # (search result text can contain "880"/"900" in unrelated context)
+            if page_h1 and not re.search(
+                rf"\bFlipper\W{{0,3}}{model_num}\b", page_h1, re.IGNORECASE
+            ):
+                log.info("  Blocket: wrong model in listing title '%s' — skipping %s",
+                         page_h1[:60], full_url)
                 continue
 
             results.append(make_boat(
