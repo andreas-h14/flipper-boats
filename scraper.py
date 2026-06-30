@@ -189,16 +189,24 @@ def _rss_get(url):
         return None
 
 
+BLOCKET_SOLD = [
+    "inte längre tillgänglig", "tagits bort", "varan har sålts",
+    "såld", "såldes", "denna annons är borttagen",
+]
+
+
 def _fetch_blocket_listing(url):
     """
     Fetch an individual Blocket listing page.
-    Returns (h1_title, description_text). Both are "" on failure.
+    Returns (h1_title, description_text, is_sold).
     """
     try:
         r = requests.get(url, headers=HEADERS, timeout=8)
         if r.status_code != 200:
-            return "", ""
+            return "", "", False
         soup = BeautifulSoup(r.text, "lxml")
+        page_text_lower = soup.get_text(" ").lower()
+        is_sold = any(m in page_text_lower[:3000] for m in BLOCKET_SOLD)
         h1 = soup.find("h1")
         h1_title = h1.get_text(" ", strip=True) if h1 else ""
         desc = ""
@@ -213,9 +221,9 @@ def _fetch_blocket_listing(url):
                 if len(t) > 60:
                     desc = t[:1500]
                     break
-        return h1_title, desc
+        return h1_title, desc, is_sold
     except Exception:
-        return "", ""
+        return "", "", False
 
 
 def scrape_blocket():
@@ -320,8 +328,12 @@ def scrape_blocket():
             full_url = ("https://www.blocket.se" + listing_url
                         if listing_url.startswith("/") else listing_url)
 
-            # Fetch listing page: verify correct model + get description for condition
-            page_h1, listing_text = _fetch_blocket_listing(full_url)
+            # Fetch listing page: verify correct model, check sold/wanted, get description
+            page_h1, listing_text, is_sold = _fetch_blocket_listing(full_url)
+
+            if is_sold:
+                log.info("  Blocket: skipping sold listing %s", full_url)
+                continue
 
             # Skip "Köpes"/wanted ads that slip through the search results filter
             if re.search(r"\bköpes\b|\bsökes\b|\bwanted\b",
