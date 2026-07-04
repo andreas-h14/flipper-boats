@@ -3,7 +3,7 @@
     "id": 1001,
     "model": "880 ST",
     "title": "Flipper 880 ST",
-    "desc": "Scraped 2026-07-03 · Scanboat",
+    "desc": "Scraped 2026-07-04 · Scanboat",
     "year": 2019,
     "country": "SE",
     "countryName": "Sverige",
@@ -16,7 +16,7 @@
     "rating": 3,
     "vat": "incl",
     "active": true,
-    "lastUpdated": "2026-07-03",
+    "lastUpdated": "2026-07-04",
     "sources": [
       {
         "name": "Scanboat",
@@ -29,7 +29,7 @@
     "id": 1002,
     "model": "880 ST",
     "title": "Flipper 880 ST",
-    "desc": "Scraped 2026-07-03 · Scanboat",
+    "desc": "Scraped 2026-07-04 · Scanboat",
     "year": 2015,
     "country": "SE",
     "countryName": "Sverige",
@@ -42,7 +42,7 @@
     "rating": 2,
     "vat": "private",
     "active": true,
-    "lastUpdated": "2026-07-03",
+    "lastUpdated": "2026-07-04",
     "sources": [
       {
         "name": "Scanboat",
@@ -55,7 +55,7 @@
     "id": 1003,
     "model": "880 ST",
     "title": "Flipper 880 ST",
-    "desc": "Scraped 2026-07-03 · Scanboat",
+    "desc": "Scraped 2026-07-04 · Scanboat",
     "year": 2017,
     "country": "SE",
     "countryName": "Sverige",
@@ -68,7 +68,7 @@
     "rating": 3,
     "vat": "incl",
     "active": true,
-    "lastUpdated": "2026-07-03",
+    "lastUpdated": "2026-07-04",
     "sources": [
       {
         "name": "Scanboat",
@@ -81,163 +81,7 @@
     "id": 1004,
     "model": "900 ST",
     "title": "Flipper 900 ST",
-    "desc": "Scraped 2026-07-03 · Scanboat",
-    "year": 2026,
-    "country": "DK",
-    "countryName": "Danmark",
-    "city": null,
-    "priceOrig": 213660,
-    "priceOrigCur": "EUR",
-    "priceSEK": 2320348,
-    "hours": null,
-    "engine": "2 x Mercury 250 Verado 4.6 V8",
-    "rating": 5,
-    "vat": "incl",
-    "active": true,
-    "lastUpdated": "2026-07-03",
-    "sources": [
-      {
-        "name": "Scanboat",
-        "url": "https://www.scanboat.com/en/boat-market/boats/motorboat-flipper-900-st-17541335"
-      }
-    ],
-    "scraped": true
-  },
-  {
-    "id": 1005,
-    "model": "900 ST",
-    "title": "Flipper 900 ST",
-    "desc": "Scraped 2026-07-03 · Scanboat",
-    "year": 2022,
-    "country": "SE",
-    "countryName": "Sverige",
-    "city": null,
-    "priceOrig": 195440,
-    "priceOrigCur": "EUR",
-    "priceSEK": 2122478,
-    "hours": null,
-    "engine": "Mercury",
-    "rating": 4,
-    "vat": "incl",
-    "active": true,
-    "lastUpdated": "2026-07-03",
-    "sources": [
-      {
-        "name": "Scanboat",
-        "url": "https://www.scanboat.com/en/boat-market/boats/motorboat-flipper-900-st-17531157"
-      }
-    ],
-    "scraped": true
-  },
-  {
-    "id": 1006,
-    "model": "900 ST",
-    "title": "Flipper 900 ST",
-    "desc": "Scraped 2026-07-03 · Scanboat",
-    "year": 2023,
-    "country": "SE",
-    "countryName": "Sverige",
-    "city": null,
-    "priceOrig": 231590,
-    "priceOrigCur": "EUR",
-    "priceSEK": 2515067,
-    "hours": null,
-    "engine": "Mercury",
-    "rating": 4,
-    "vat": "incl",
-    "active": true,
-    "lastUpdated": "2026-07-03",
-    "sources": [
-      {
-        "name": "Scanboat",
-        "url": "https://www.scanboat.com/en/boat-market/boats/motorboat-flipper-900-st-17520398"
-      }
-    ],
-    "scraped": true
-  },
-  {
-    "id": 1007,
-    "model": "900 ST",
-    "title": "Flipper 900 ST",
-    "desc": "Scraped 2026-07-03 · Scanboat",
-    "year": 2024,
-    "country": "SE",
-    "countryName": "Sverige",
-    "city": null,
-    "priceOrig": 231610,
-    "priceOrigCur": "EUR",
-    "priceSEK": 2515285,
-    "hours": null,
-    "engine": "Mercury",
-    "rating": 5,
-    "vat": "incl",
-    "active": true,
-    "lastUpdated": "2026-07-03",
-    "sources": [
-      {
-        "name": "Scanboat",
-        "url": "https://www.scanboat.com/en/boat-market/boats/motorboat-flipper-900-st-17525538"
-      }
-    ],
-    "scraped": true
-  },
-  {
-    "id": 1012,
-    "model": "900 ST",
-    "title": "Flipper 900 ST",
-    "desc": "Scraped 2026-07-03 · Scanboat",
-    "year": 2019,
-    "country": "SE",
-    "countryName": "Sverige",
-    "city": null,
-    "priceOrig": 207900,
-    "priceOrigCur": "EUR",
-    "priceSEK": 2257794,
-    "hours": null,
-    "engine": "Mercury 4",
-    "rating": 3,
-    "vat": "incl",
-    "active": true,
-    "lastUpdated": "2026-07-03",
-    "sources": [
-      {
-        "name": "Scanboat",
-        "url": "https://www.scanboat.com/en/boat-market/boats/motorboat-flipper-900-st-17538080"
-      }
-    ],
-    "scraped": true
-  },
-  {
-    "id": 1014,
-    "model": "900 ST",
-    "title": "Flipper 900 ST",
-    "desc": "Scraped 2026-07-03 · Scanboat",
-    "year": 2020,
-    "country": "SE",
-    "countryName": "Sverige",
-    "city": null,
-    "priceOrig": 177900,
-    "priceOrigCur": "EUR",
-    "priceSEK": 1931994,
-    "hours": null,
-    "engine": "Mercury",
-    "rating": 3,
-    "vat": "incl",
-    "active": true,
-    "lastUpdated": "2026-07-03",
-    "sources": [
-      {
-        "name": "Scanboat",
-        "url": "https://www.scanboat.com/en/boat-market/boats/motorboat-flipper-900-st-17523501"
-      }
-    ],
-    "scraped": true
-  },
-  {
-    "id": 1015,
-    "model": "900 ST",
-    "title": "Flipper 900 ST",
-    "desc": "Scraped 2026-07-03 · Scanboat",
+    "desc": "Scraped 2026-07-04 · Scanboat",
     "year": 2021,
     "country": "SE",
     "countryName": "Sverige",
@@ -250,7 +94,7 @@
     "rating": 4,
     "vat": "private",
     "active": true,
-    "lastUpdated": "2026-07-03",
+    "lastUpdated": "2026-07-04",
     "sources": [
       {
         "name": "Scanboat",
@@ -260,10 +104,192 @@
     "scraped": true
   },
   {
-    "id": 1018,
-    "model": "880 ST",
-    "title": "Flipper 880 St",
-    "desc": "Scraped 2026-07-03 · Boat24",
+    "id": 1005,
+    "model": "900 ST",
+    "title": "Flipper 900 ST",
+    "desc": "Scraped 2026-07-04 · Scanboat",
+    "year": 2026,
+    "country": "DK",
+    "countryName": "Danmark",
+    "city": null,
+    "priceOrig": 213660,
+    "priceOrigCur": "EUR",
+    "priceSEK": 2320348,
+    "hours": null,
+    "engine": "2 x Mercury 250 Verado 4.6 V8",
+    "rating": 5,
+    "vat": "incl",
+    "active": true,
+    "lastUpdated": "2026-07-04",
+    "sources": [
+      {
+        "name": "Scanboat",
+        "url": "https://www.scanboat.com/en/boat-market/boats/motorboat-flipper-900-st-17541335"
+      }
+    ],
+    "scraped": true
+  },
+  {
+    "id": 1006,
+    "model": "900 ST",
+    "title": "Flipper 900 ST",
+    "desc": "Scraped 2026-07-04 · Scanboat",
+    "year": 2022,
+    "country": "SE",
+    "countryName": "Sverige",
+    "city": null,
+    "priceOrig": 195440,
+    "priceOrigCur": "EUR",
+    "priceSEK": 2122478,
+    "hours": null,
+    "engine": "Mercury",
+    "rating": 4,
+    "vat": "incl",
+    "active": true,
+    "lastUpdated": "2026-07-04",
+    "sources": [
+      {
+        "name": "Scanboat",
+        "url": "https://www.scanboat.com/en/boat-market/boats/motorboat-flipper-900-st-17531157"
+      }
+    ],
+    "scraped": true
+  },
+  {
+    "id": 1007,
+    "model": "900 ST",
+    "title": "Flipper 900 ST",
+    "desc": "Scraped 2026-07-04 · Scanboat",
+    "year": 2023,
+    "country": "SE",
+    "countryName": "Sverige",
+    "city": null,
+    "priceOrig": 231590,
+    "priceOrigCur": "EUR",
+    "priceSEK": 2515067,
+    "hours": null,
+    "engine": "Mercury",
+    "rating": 4,
+    "vat": "incl",
+    "active": true,
+    "lastUpdated": "2026-07-04",
+    "sources": [
+      {
+        "name": "Scanboat",
+        "url": "https://www.scanboat.com/en/boat-market/boats/motorboat-flipper-900-st-17520398"
+      }
+    ],
+    "scraped": true
+  },
+  {
+    "id": 1008,
+    "model": "900 ST",
+    "title": "Flipper 900 ST",
+    "desc": "Scraped 2026-07-04 · Scanboat",
+    "year": 2024,
+    "country": "SE",
+    "countryName": "Sverige",
+    "city": null,
+    "priceOrig": 231610,
+    "priceOrigCur": "EUR",
+    "priceSEK": 2515285,
+    "hours": null,
+    "engine": "Mercury",
+    "rating": 5,
+    "vat": "incl",
+    "active": true,
+    "lastUpdated": "2026-07-04",
+    "sources": [
+      {
+        "name": "Scanboat",
+        "url": "https://www.scanboat.com/en/boat-market/boats/motorboat-flipper-900-st-17525538"
+      }
+    ],
+    "scraped": true
+  },
+  {
+    "id": 1013,
+    "model": "900 ST",
+    "title": "Flipper 900 ST",
+    "desc": "Scraped 2026-07-04 · Scanboat",
+    "year": 2019,
+    "country": "SE",
+    "countryName": "Sverige",
+    "city": null,
+    "priceOrig": 207900,
+    "priceOrigCur": "EUR",
+    "priceSEK": 2257794,
+    "hours": null,
+    "engine": "Mercury 4",
+    "rating": 3,
+    "vat": "incl",
+    "active": true,
+    "lastUpdated": "2026-07-04",
+    "sources": [
+      {
+        "name": "Scanboat",
+        "url": "https://www.scanboat.com/en/boat-market/boats/motorboat-flipper-900-st-17538080"
+      }
+    ],
+    "scraped": true
+  },
+  {
+    "id": 1015,
+    "model": "900 ST",
+    "title": "Flipper 900 ST",
+    "desc": "Scraped 2026-07-04 · Scanboat",
+    "year": 2020,
+    "country": "SE",
+    "countryName": "Sverige",
+    "city": null,
+    "priceOrig": 177900,
+    "priceOrigCur": "EUR",
+    "priceSEK": 1931994,
+    "hours": null,
+    "engine": "Mercury",
+    "rating": 3,
+    "vat": "incl",
+    "active": true,
+    "lastUpdated": "2026-07-04",
+    "sources": [
+      {
+        "name": "Scanboat",
+        "url": "https://www.scanboat.com/en/boat-market/boats/motorboat-flipper-900-st-17523501"
+      }
+    ],
+    "scraped": true
+  },
+  {
+    "id": 1024,
+    "model": "900 ST",
+    "title": "Flipper 900 ST",
+    "desc": "Scraped 2026-07-04 · Boat24",
+    "year": 2025,
+    "country": null,
+    "countryName": "",
+    "city": null,
+    "priceOrig": null,
+    "priceOrigCur": "EUR",
+    "priceSEK": null,
+    "hours": null,
+    "engine": null,
+    "rating": 5,
+    "vat": "unknown",
+    "active": true,
+    "lastUpdated": "2026-07-04",
+    "sources": [
+      {
+        "name": "Boat24",
+        "url": "https://www.boat24.com/en/catalog/powerboats/flipper/900-st/2025/247606/"
+      }
+    ],
+    "scraped": true
+  },
+  {
+    "id": 1026,
+    "model": "900 ST",
+    "title": "Flipper 900 ST",
+    "desc": "Scraped 2026-07-04 · Boat24",
     "year": null,
     "country": null,
     "countryName": "",
@@ -276,11 +302,63 @@
     "rating": null,
     "vat": "unknown",
     "active": true,
-    "lastUpdated": "2026-07-03",
+    "lastUpdated": "2026-07-04",
     "sources": [
       {
         "name": "Boat24",
-        "url": "https://www.boat24.com/en/powerboats/flipper/flipper-880-st/"
+        "url": "https://www.boat24.com/en/powerboats/flipper/flipper-900-st/"
+      }
+    ],
+    "scraped": true
+  },
+  {
+    "id": 1027,
+    "model": "880 ST",
+    "title": "Flipper 880 ST",
+    "desc": "Scraped 2026-07-04 · Nettivene",
+    "year": 2014,
+    "country": "FI",
+    "countryName": "Finland",
+    "city": null,
+    "priceOrig": 123000,
+    "priceOrigCur": "EUR",
+    "priceSEK": 1335780,
+    "hours": null,
+    "engine": null,
+    "rating": 2,
+    "vat": "unknown",
+    "active": true,
+    "lastUpdated": "2026-07-04",
+    "sources": [
+      {
+        "name": "Nettivene",
+        "url": "https://www.nettivene.com/en/moottorivene/flipper/1033620"
+      }
+    ],
+    "scraped": true
+  },
+  {
+    "id": 1028,
+    "model": "880 ST",
+    "title": "Flipper 880 ST",
+    "desc": "Scraped 2026-07-04 · Nettivene",
+    "year": 2013,
+    "country": "FI",
+    "countryName": "Finland",
+    "city": null,
+    "priceOrig": 104900,
+    "priceOrigCur": "EUR",
+    "priceSEK": 1139214,
+    "hours": null,
+    "engine": null,
+    "rating": 2,
+    "vat": "unknown",
+    "active": true,
+    "lastUpdated": "2026-07-04",
+    "sources": [
+      {
+        "name": "Nettivene",
+        "url": "https://www.nettivene.com/en/moottorivene/flipper/1026728"
       }
     ],
     "scraped": true
