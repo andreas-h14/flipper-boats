@@ -3,7 +3,7 @@
     "id": 1001,
     "model": "880 ST",
     "title": "Flipper 880 ST",
-    "desc": "Scraped 2026-08-27 · Blocket",
+    "desc": "Scraped 2026-08-28 · Blocket",
     "year": null,
     "country": "SE",
     "countryName": "Sverige",
@@ -16,7 +16,7 @@
     "rating": null,
     "vat": "incl",
     "active": true,
-    "lastUpdated": "2026-08-27",
+    "lastUpdated": "2026-08-28",
     "sources": [
       {
         "name": "Blocket",
@@ -29,7 +29,7 @@
     "id": 1002,
     "model": "880 ST",
     "title": "Flipper 880 ST",
-    "desc": "Scraped 2026-08-27 · Blocket",
+    "desc": "Scraped 2026-08-28 · Blocket",
     "year": 2019,
     "country": "SE",
     "countryName": "Sverige",
@@ -42,7 +42,7 @@
     "rating": 4,
     "vat": "private",
     "active": true,
-    "lastUpdated": "2026-08-27",
+    "lastUpdated": "2026-08-28",
     "sources": [
       {
         "name": "Blocket",
@@ -55,7 +55,7 @@
     "id": 1005,
     "model": "900 ST",
     "title": "Flipper 900 ST",
-    "desc": "Scraped 2026-08-27 · Blocket",
+    "desc": "Scraped 2026-08-28 · Blocket",
     "year": null,
     "country": "SE",
     "countryName": "Sverige",
@@ -68,7 +68,7 @@
     "rating": 5,
     "vat": "incl",
     "active": true,
-    "lastUpdated": "2026-08-27",
+    "lastUpdated": "2026-08-28",
     "sources": [
       {
         "name": "Blocket",
@@ -81,7 +81,7 @@
     "id": 1006,
     "model": "900 ST",
     "title": "Pil vänster Pil höger Bild 1 av 12 Flipper 900 ST",
-    "desc": "Scraped 2026-08-27 · Blocket",
+    "desc": "Scraped 2026-08-28 · Blocket",
     "year": 2021,
     "country": "SE",
     "countryName": "Sverige",
@@ -94,7 +94,7 @@
     "rating": 4,
     "vat": "incl",
     "active": true,
-    "lastUpdated": "2026-08-27",
+    "lastUpdated": "2026-08-28",
     "sources": [
       {
         "name": "Blocket",
@@ -107,7 +107,7 @@
     "id": 1007,
     "model": "900 ST",
     "title": "Pil vänster Pil höger Bild 1 av 10 Flipper 900 ST - 2019",
-    "desc": "Scraped 2026-08-27 · Blocket",
+    "desc": "Scraped 2026-08-28 · Blocket",
     "year": 2019,
     "country": "SE",
     "countryName": "Sverige",
@@ -120,7 +120,7 @@
     "rating": 4,
     "vat": "incl",
     "active": true,
-    "lastUpdated": "2026-08-27",
+    "lastUpdated": "2026-08-28",
     "sources": [
       {
         "name": "Blocket",
@@ -133,7 +133,7 @@
     "id": 1009,
     "model": "900 ST",
     "title": "Pil vänster Pil höger Bild 1 av 22 Flipper 900 ST - 2024",
-    "desc": "Scraped 2026-08-27 · Blocket",
+    "desc": "Scraped 2026-08-28 · Blocket",
     "year": 2024,
     "country": "SE",
     "countryName": "Sverige",
@@ -146,7 +146,7 @@
     "rating": 5,
     "vat": "incl",
     "active": true,
-    "lastUpdated": "2026-08-27",
+    "lastUpdated": "2026-08-28",
     "sources": [
       {
         "name": "Blocket",
@@ -159,7 +159,7 @@
     "id": 1010,
     "model": "900 ST",
     "title": "Pil vänster Pil höger Bild 1 av 15 Flipper 900 ST 2 x F250",
-    "desc": "Scraped 2026-08-27 · Blocket",
+    "desc": "Scraped 2026-08-28 · Blocket",
     "year": 2024,
     "country": "SE",
     "countryName": "Sverige",
@@ -172,7 +172,7 @@
     "rating": 5,
     "vat": "incl",
     "active": true,
-    "lastUpdated": "2026-08-27",
+    "lastUpdated": "2026-08-28",
     "sources": [
       {
         "name": "Blocket",
@@ -185,7 +185,7 @@
     "id": 1011,
     "model": "880 ST",
     "title": "Flipper 880 ST",
-    "desc": "Scraped 2026-08-27 · Boat24",
+    "desc": "Scraped 2026-08-28 · Boat24",
     "year": 2015,
     "country": null,
     "countryName": "",
@@ -198,7 +198,7 @@
     "rating": 2,
     "vat": "unknown",
     "active": true,
-    "lastUpdated": "2026-08-27",
+    "lastUpdated": "2026-08-28",
     "sources": [
       {
         "name": "Boat24",
@@ -211,7 +211,7 @@
     "id": 1014,
     "model": "880 ST",
     "title": "Flipper 880 ST",
-    "desc": "Scraped 2026-08-27 · Nettivene",
+    "desc": "Scraped 2026-08-28 · Nettivene",
     "year": 2014,
     "country": "FI",
     "countryName": "Finland",
@@ -224,7 +224,7 @@
     "rating": 2,
     "vat": "unknown",
     "active": true,
-    "lastUpdated": "2026-08-27",
+    "lastUpdated": "2026-08-28",
     "sources": [
       {
         "name": "Nettivene",
@@ -237,7 +237,7 @@
     "id": 1015,
     "model": "880 ST",
     "title": "Flipper 880 ST",
-    "desc": "Scraped 2026-08-27 · Nettivene",
+    "desc": "Scraped 2026-08-28 · Nettivene",
     "year": 2013,
     "country": "FI",
     "countryName": "Finland",
@@ -250,7 +250,7 @@
     "rating": 2,
     "vat": "unknown",
     "active": true,
-    "lastUpdated": "2026-08-27",
+    "lastUpdated": "2026-08-28",
     "sources": [
       {
         "name": "Nettivene",
@@ -263,7 +263,7 @@
     "id": 1016,
     "model": "880 ST",
     "title": "Flipper 880 ST",
-    "desc": "Scraped 2026-08-27 · Nettivene",
+    "desc": "Scraped 2026-08-28 · Nettivene",
     "year": 2017,
     "country": "FI",
     "countryName": "Finland",
@@ -276,7 +276,7 @@
     "rating": 3,
     "vat": "unknown",
     "active": true,
-    "lastUpdated": "2026-08-27",
+    "lastUpdated": "2026-08-28",
     "sources": [
       {
         "name": "Nettivene",
@@ -289,7 +289,7 @@
     "id": 1018,
     "model": "900 ST",
     "title": "Flipper 900 ST",
-    "desc": "Scraped 2026-08-27 · Nettivene",
+    "desc": "Scraped 2026-08-28 · Nettivene",
     "year": 2025,
     "country": "FI",
     "countryName": "Finland",
@@ -302,7 +302,7 @@
     "rating": 5,
     "vat": "unknown",
     "active": true,
-    "lastUpdated": "2026-08-27",
+    "lastUpdated": "2026-08-28",
     "sources": [
       {
         "name": "Nettivene",
