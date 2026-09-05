@@ -3,7 +3,7 @@
     "id": 1001,
     "model": "880 ST",
     "title": "Flipper 880 ST",
-    "desc": "Scraped 2026-09-04 · Blocket",
+    "desc": "Scraped 2026-09-05 · Blocket",
     "year": null,
     "country": "SE",
     "countryName": "Sverige",
@@ -16,7 +16,7 @@
     "rating": null,
     "vat": "incl",
     "active": true,
-    "lastUpdated": "2026-09-04",
+    "lastUpdated": "2026-09-05",
     "sources": [
       {
         "name": "Blocket",
@@ -29,7 +29,7 @@
     "id": 1002,
     "model": "880 ST",
     "title": "Flipper 880 ST",
-    "desc": "Scraped 2026-09-04 · Blocket",
+    "desc": "Scraped 2026-09-05 · Blocket",
     "year": 2019,
     "country": "SE",
     "countryName": "Sverige",
@@ -42,7 +42,7 @@
     "rating": 4,
     "vat": "private",
     "active": true,
-    "lastUpdated": "2026-09-04",
+    "lastUpdated": "2026-09-05",
     "sources": [
       {
         "name": "Blocket",
@@ -55,33 +55,33 @@
     "id": 1005,
     "model": "900 ST",
     "title": "Flipper 900 ST",
-    "desc": "Scraped 2026-09-04 · Blocket",
+    "desc": "Scraped 2026-09-05 · Blocket",
     "year": null,
     "country": "SE",
     "countryName": "Sverige",
-    "city": "Stockholm",
-    "priceOrig": 2199000,
+    "city": "Lidingö",
+    "priceOrig": 1695000,
     "priceOrigCur": "SEK",
-    "priceSEK": 2199000,
+    "priceSEK": 1695000,
     "hours": null,
-    "engine": "200 hk",
-    "rating": 5,
+    "engine": "400 hk",
+    "rating": 4,
     "vat": "incl",
     "active": true,
-    "lastUpdated": "2026-09-04",
+    "lastUpdated": "2026-09-05",
     "sources": [
       {
         "name": "Blocket",
-        "url": "https://www.blocket.se/mobility/item/22323283"
+        "url": "https://www.blocket.se/mobility/item/25674861"
       }
     ],
     "scraped": true
   },
   {
-    "id": 1006,
+    "id": 1007,
     "model": "900 ST",
     "title": "Pil vänster Pil höger Bild 1 av 12 Flipper 900 ST",
-    "desc": "Scraped 2026-09-04 · Blocket",
+    "desc": "Scraped 2026-09-05 · Blocket",
     "year": 2021,
     "country": "SE",
     "countryName": "Sverige",
@@ -94,7 +94,7 @@
     "rating": 4,
     "vat": "incl",
     "active": true,
-    "lastUpdated": "2026-09-04",
+    "lastUpdated": "2026-09-05",
     "sources": [
       {
         "name": "Blocket",
@@ -104,36 +104,10 @@
     "scraped": true
   },
   {
-    "id": 1007,
-    "model": "900 ST",
-    "title": "Pil vänster Pil höger Bild 1 av 10 Flipper 900 ST - 2019",
-    "desc": "Scraped 2026-09-04 · Blocket",
-    "year": 2019,
-    "country": "SE",
-    "countryName": "Sverige",
-    "city": "Lidingö",
-    "priceOrig": 1790000,
-    "priceOrigCur": "SEK",
-    "priceSEK": 1790000,
-    "hours": null,
-    "engine": "400 hk",
-    "rating": 4,
-    "vat": "incl",
-    "active": true,
-    "lastUpdated": "2026-09-04",
-    "sources": [
-      {
-        "name": "Blocket",
-        "url": "https://www.blocket.se/mobility/item/25674861"
-      }
-    ],
-    "scraped": true
-  },
-  {
     "id": 1009,
     "model": "900 ST",
     "title": "Pil vänster Pil höger Bild 1 av 22 Flipper 900 ST - 2024",
-    "desc": "Scraped 2026-09-04 · Blocket",
+    "desc": "Scraped 2026-09-05 · Blocket",
     "year": 2024,
     "country": "SE",
     "countryName": "Sverige",
@@ -146,7 +120,7 @@
     "rating": 5,
     "vat": "incl",
     "active": true,
-    "lastUpdated": "2026-09-04",
+    "lastUpdated": "2026-09-05",
     "sources": [
       {
         "name": "Blocket",
@@ -159,7 +133,7 @@
     "id": 1010,
     "model": "900 ST",
     "title": "Pil vänster Pil höger Bild 1 av 15 Flipper 900 ST 2 x F250",
-    "desc": "Scraped 2026-09-04 · Blocket",
+    "desc": "Scraped 2026-09-05 · Blocket",
     "year": 2024,
     "country": "SE",
     "countryName": "Sverige",
@@ -172,7 +146,7 @@
     "rating": 5,
     "vat": "incl",
     "active": true,
-    "lastUpdated": "2026-09-04",
+    "lastUpdated": "2026-09-05",
     "sources": [
       {
         "name": "Blocket",
@@ -183,10 +157,10 @@
   },
   {
     "id": 1011,
-    "model": "880 ST",
-    "title": "Flipper 880 ST",
-    "desc": "Scraped 2026-09-04 · Boat24",
-    "year": 2015,
+    "model": "900 ST",
+    "title": "Flipper 900 ST",
+    "desc": "Scraped 2026-09-05 · Boat24",
+    "year": 2023,
     "country": null,
     "countryName": "",
     "city": null,
@@ -195,23 +169,153 @@
     "priceSEK": null,
     "hours": null,
     "engine": null,
-    "rating": 2,
+    "rating": 4,
     "vat": "unknown",
     "active": true,
-    "lastUpdated": "2026-09-04",
+    "lastUpdated": "2026-09-05",
     "sources": [
       {
         "name": "Boat24",
-        "url": "https://www.boat24.com/en/powerboats/flipper/flipper-880-st/detail/729820/"
+        "url": "https://www.boat24.com/en/powerboats/flipper/flipper-900-st/detail/715343/"
+      }
+    ],
+    "scraped": true
+  },
+  {
+    "id": 1012,
+    "model": "900 ST",
+    "title": "Flipper 900 ST",
+    "desc": "Scraped 2026-09-05 · Boat24",
+    "year": 2022,
+    "country": null,
+    "countryName": "",
+    "city": null,
+    "priceOrig": null,
+    "priceOrigCur": "EUR",
+    "priceSEK": null,
+    "hours": null,
+    "engine": null,
+    "rating": 4,
+    "vat": "unknown",
+    "active": true,
+    "lastUpdated": "2026-09-05",
+    "sources": [
+      {
+        "name": "Boat24",
+        "url": "https://www.boat24.com/en/powerboats/flipper/flipper-900-st/detail/708214/"
+      }
+    ],
+    "scraped": true
+  },
+  {
+    "id": 1013,
+    "model": "900 ST",
+    "title": "Flipper 900 ST",
+    "desc": "Scraped 2026-09-05 · Boat24",
+    "year": 2021,
+    "country": null,
+    "countryName": "",
+    "city": null,
+    "priceOrig": null,
+    "priceOrigCur": "EUR",
+    "priceSEK": null,
+    "hours": null,
+    "engine": null,
+    "rating": 4,
+    "vat": "unknown",
+    "active": true,
+    "lastUpdated": "2026-09-05",
+    "sources": [
+      {
+        "name": "Boat24",
+        "url": "https://www.boat24.com/en/powerboats/flipper/flipper-900-st/detail/719219/"
       }
     ],
     "scraped": true
   },
   {
     "id": 1014,
+    "model": "900 ST",
+    "title": "Flipper 900 ST",
+    "desc": "Scraped 2026-09-05 · Boat24",
+    "year": 2026,
+    "country": null,
+    "countryName": "",
+    "city": null,
+    "priceOrig": null,
+    "priceOrigCur": "EUR",
+    "priceSEK": null,
+    "hours": null,
+    "engine": null,
+    "rating": 5,
+    "vat": "unknown",
+    "active": true,
+    "lastUpdated": "2026-09-05",
+    "sources": [
+      {
+        "name": "Boat24",
+        "url": "https://www.boat24.com/en/powerboats/flipper/flipper-900-st/detail/525560/"
+      }
+    ],
+    "scraped": true
+  },
+  {
+    "id": 1016,
+    "model": "900 ST",
+    "title": "Flipper 900 ST",
+    "desc": "Scraped 2026-09-05 · Boat24",
+    "year": 2024,
+    "country": null,
+    "countryName": "",
+    "city": null,
+    "priceOrig": null,
+    "priceOrigCur": "EUR",
+    "priceSEK": null,
+    "hours": null,
+    "engine": null,
+    "rating": 5,
+    "vat": "unknown",
+    "active": true,
+    "lastUpdated": "2026-09-05",
+    "sources": [
+      {
+        "name": "Boat24",
+        "url": "https://www.boat24.com/en/catalog/powerboats/flipper/900-st/2024/246025/"
+      }
+    ],
+    "scraped": true
+  },
+  {
+    "id": 1017,
+    "model": "900 ST",
+    "title": "Flipper 900 ST",
+    "desc": "Scraped 2026-09-05 · Boat24",
+    "year": 2025,
+    "country": null,
+    "countryName": "",
+    "city": null,
+    "priceOrig": null,
+    "priceOrigCur": "EUR",
+    "priceSEK": null,
+    "hours": null,
+    "engine": null,
+    "rating": 5,
+    "vat": "unknown",
+    "active": true,
+    "lastUpdated": "2026-09-05",
+    "sources": [
+      {
+        "name": "Boat24",
+        "url": "https://www.boat24.com/en/catalog/powerboats/flipper/900-st/2025/247606/"
+      }
+    ],
+    "scraped": true
+  },
+  {
+    "id": 1020,
     "model": "880 ST",
     "title": "Flipper 880 ST",
-    "desc": "Scraped 2026-09-04 · Nettivene",
+    "desc": "Scraped 2026-09-05 · Nettivene",
     "year": 2014,
     "country": "FI",
     "countryName": "Finland",
@@ -224,7 +328,7 @@
     "rating": 2,
     "vat": "unknown",
     "active": true,
-    "lastUpdated": "2026-09-04",
+    "lastUpdated": "2026-09-05",
     "sources": [
       {
         "name": "Nettivene",
@@ -234,10 +338,10 @@
     "scraped": true
   },
   {
-    "id": 1015,
+    "id": 1021,
     "model": "880 ST",
     "title": "Flipper 880 ST",
-    "desc": "Scraped 2026-09-04 · Nettivene",
+    "desc": "Scraped 2026-09-05 · Nettivene",
     "year": 2013,
     "country": "FI",
     "countryName": "Finland",
@@ -250,7 +354,7 @@
     "rating": 2,
     "vat": "unknown",
     "active": true,
-    "lastUpdated": "2026-09-04",
+    "lastUpdated": "2026-09-05",
     "sources": [
       {
         "name": "Nettivene",
@@ -260,10 +364,10 @@
     "scraped": true
   },
   {
-    "id": 1016,
+    "id": 1022,
     "model": "880 ST",
     "title": "Flipper 880 ST",
-    "desc": "Scraped 2026-09-04 · Nettivene",
+    "desc": "Scraped 2026-09-05 · Nettivene",
     "year": 2017,
     "country": "FI",
     "countryName": "Finland",
@@ -276,37 +380,11 @@
     "rating": 3,
     "vat": "unknown",
     "active": true,
-    "lastUpdated": "2026-09-04",
+    "lastUpdated": "2026-09-05",
     "sources": [
       {
         "name": "Nettivene",
         "url": "https://www.nettivene.com/en/moottorivene/flipper/1021448"
-      }
-    ],
-    "scraped": true
-  },
-  {
-    "id": 1018,
-    "model": "900 ST",
-    "title": "Flipper 900 ST",
-    "desc": "Scraped 2026-09-04 · Nettivene",
-    "year": 2025,
-    "country": "FI",
-    "countryName": "Finland",
-    "city": null,
-    "priceOrig": 251300,
-    "priceOrigCur": "EUR",
-    "priceSEK": 2729118,
-    "hours": null,
-    "engine": null,
-    "rating": 5,
-    "vat": "unknown",
-    "active": true,
-    "lastUpdated": "2026-09-04",
-    "sources": [
-      {
-        "name": "Nettivene",
-        "url": "https://www.nettivene.com/en/moottorivene/flipper/903265"
       }
     ],
     "scraped": true
